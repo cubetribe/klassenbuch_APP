@@ -35,8 +35,12 @@ export const bulkCreateStudentsSchema = z.object({
 });
 
 export const studentFilterSchema = z.object({
-  courseId: z.string().uuid().optional(),
-  active: z.boolean().optional(),
-  color: colorSchema.optional(),
-  search: z.string().optional(),
+  courseId: z.string().uuid('Invalid course ID').nullable(),
+  active: z.string().nullable().transform(val => {
+    if (val === 'true') return true;
+    if (val === 'false') return false;
+    return undefined;
+  }).optional(),
+  color: z.enum(['BLUE', 'GREEN', 'YELLOW', 'RED']).nullable().optional(),
+  search: z.string().nullable().optional(),
 });

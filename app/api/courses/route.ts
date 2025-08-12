@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
       eventCount: course._count.events,
     }));
 
-    return NextResponse.json(transformedCourses);
+    return NextResponse.json({ courses: transformedCourses });
   } catch (error) {
     return handleApiError(error);
   }

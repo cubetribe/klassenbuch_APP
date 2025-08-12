@@ -2,7 +2,6 @@ import { z } from 'zod';
 import { severitySchema } from './common';
 
 export const createConsequenceSchema = z.object({
-  courseId: z.string().uuid('Invalid course ID'),
   name: z.string().min(1, 'Name is required').max(100),
   description: z.string().max(500).optional(),
   severity: severitySchema,

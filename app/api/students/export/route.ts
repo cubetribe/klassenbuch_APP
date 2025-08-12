@@ -5,6 +5,8 @@ import { prisma } from '@/lib/db/prisma';
 import { generateStudentCSV } from '@/lib/utils/csv';
 import { handleApiError, UnauthorizedError, ForbiddenError } from '@/lib/api/errors';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/students/export - Export students to CSV
 export async function GET(request: NextRequest) {
   try {

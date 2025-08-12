@@ -19,34 +19,8 @@ export async function GET(request: NextRequest) {
     const severity = searchParams.get('severity');
     const includeInactive = searchParams.get('includeInactive') === 'true';
 
-    // Build where clause
+    // Build where clause - consequences are now school-wide
     const where: any = {};
-
-    if (courseId) {
-      // Verify user has access to this course
-      const course = await prisma.course.findUnique({
-        where: { id: courseId },
-        select: { teacherId: true },
-      });
-
-      if (!course) {
-        throw new NotFoundError('Course not found');
-      }
-
-      if (course.teacherId !== session.user.id && session.user.role !== 'ADMIN') {
-        throw new ForbiddenError('You do not have access to this course');
-      }
-
-      where.courseId = courseId;
-    } else {
-      // Get consequences from user's courses
-      const courses = await prisma.course.findMany({
-        where: { teacherId: session.user.id },
-        select: { id: true },
-      });
-      
-      where.courseId = { in: courses.map(c => c.id) };
-    }
 
     if (severity) {
       where.severity = severity;
@@ -59,12 +33,6 @@ export async function GET(request: NextRequest) {
     const consequences = await prisma.consequence.findMany({
       where,
       include: {
-        course: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
         _count: {
           select: {
             applications: true,
@@ -72,7 +40,6 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: [
-        { courseId: 'asc' },
         { severity: 'asc' },
         { name: 'asc' },
       ],
@@ -113,18 +80,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createConsequenceSchema.parse(body);
 
-    // Verify user has access to this course
-    const course = await prisma.course.findUnique({
-      where: { id: validatedData.courseId },
-      select: { teacherId: true },
-    });
-
-    if (!course) {
-      throw new NotFoundError('Course not found');
-    }
-
-    if (course.teacherId !== session.user.id && session.user.role !== 'ADMIN') {
-      throw new ForbiddenError('You do not have permission to add consequences to this course');
+    // Only admins and teachers can create school-wide consequences
+    if (session.user.role !== 'ADMIN' && session.user.role !== 'TEACHER') {
+      throw new ForbiddenError('You do not have permission to create consequences');
     }
 
     // Create consequence with audit log
@@ -132,7 +90,6 @@ export async function POST(request: NextRequest) {
       const newConsequence = await tx.consequence.create({
         data: {
           name: validatedData.name!,
-          courseId: validatedData.courseId!,
           description: validatedData.description,
           emoji: validatedData.emoji,
           severity: validatedData.severity || 'MINOR',

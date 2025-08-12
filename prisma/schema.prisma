@@ -51,8 +51,6 @@ model Course {
   teacher      User                     @relation(fields: [teacherId], references: [id])
   students     Student[]
   events       BehaviorEvent[]
-  rewards      Reward[]
-  consequences Consequence[]
   redemptions  RewardRedemption[]
   applications ConsequenceApplication[]
 
@@ -123,10 +121,9 @@ enum EventType {
   MANUAL_ACTION
 }
 
-// Rewards System
+// Rewards System (School-wide)
 model Reward {
   id          String   @id @default(uuid())
-  courseId    String   @map("course_id")
   name        String
   description String?
   costXP      Int?     @map("cost_xp")
@@ -139,10 +136,9 @@ model Reward {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
-  course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
   redemptions RewardRedemption[]
 
-  @@index([courseId, active])
+  @@index([active])
   @@map("rewards")
 }
 
@@ -166,10 +162,9 @@ model RewardRedemption {
   @@map("reward_redemptions")
 }
 
-// Consequences System
+// Consequences System (School-wide)
 model Consequence {
   id            String            @id @default(uuid())
-  courseId      String            @map("course_id")
   name          String
   description   String?
   severity      ConsequenceSeverity
@@ -180,10 +175,9 @@ model Consequence {
   updatedAt     DateTime          @updatedAt @map("updated_at")
 
   // Relations
-  course       Course                   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   applications ConsequenceApplication[]
 
-  @@index([courseId, active])
+  @@index([active])
   @@map("consequences")
 }
 

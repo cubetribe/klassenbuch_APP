@@ -18,34 +18,8 @@ export async function GET(request: NextRequest) {
     const courseId = searchParams.get('courseId');
     const includeInactive = searchParams.get('includeInactive') === 'true';
 
-    // Build where clause
+    // Build where clause - rewards are now school-wide
     const where: any = {};
-
-    if (courseId) {
-      // Verify user has access to this course
-      const course = await prisma.course.findUnique({
-        where: { id: courseId },
-        select: { teacherId: true },
-      });
-
-      if (!course) {
-        throw new NotFoundError('Course not found');
-      }
-
-      if (course.teacherId !== session.user.id && session.user.role !== 'ADMIN') {
-        throw new ForbiddenError('You do not have access to this course');
-      }
-
-      where.courseId = courseId;
-    } else {
-      // Get rewards from user's courses
-      const courses = await prisma.course.findMany({
-        where: { teacherId: session.user.id },
-        select: { id: true },
-      });
-      
-      where.courseId = { in: courses.map(c => c.id) };
-    }
 
     if (!includeInactive) {
       where.active = true;
@@ -54,12 +28,6 @@ export async function GET(request: NextRequest) {
     const rewards = await prisma.reward.findMany({
       where,
       include: {
-        course: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
         _count: {
           select: {
             redemptions: true,
@@ -67,7 +35,6 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: [
-        { courseId: 'asc' },
         { category: 'asc' },
         { name: 'asc' },
       ],
@@ -108,18 +75,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createRewardSchema.parse(body);
 
-    // Verify user has access to this course
-    const course = await prisma.course.findUnique({
-      where: { id: validatedData.courseId },
-      select: { teacherId: true },
-    });
-
-    if (!course) {
-      throw new NotFoundError('Course not found');
-    }
-
-    if (course.teacherId !== session.user.id && session.user.role !== 'ADMIN') {
-      throw new ForbiddenError('You do not have permission to add rewards to this course');
+    // Only admins and teachers can create school-wide rewards
+    if (session.user.role !== 'ADMIN' && session.user.role !== 'TEACHER') {
+      throw new ForbiddenError('You do not have permission to create rewards');
     }
 
     // Create reward with audit log

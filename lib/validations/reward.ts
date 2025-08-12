@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 export const createRewardSchema = z.object({
-  courseId: z.string().uuid('Invalid course ID'),
   name: z.string().min(1, 'Name is required').max(100),
   description: z.string().max(500).optional(),
   costXP: z.number().int().positive().optional(),

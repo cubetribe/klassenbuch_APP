@@ -33,10 +33,10 @@ export default function CourseRewardsPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    costXP: 0,
+    costXP: 10,
     costLevel: 0,
     weeklyLimit: 0,
-    category: '',
+    category: 'Sonstiges',
     emoji: '🎁'
   });
 
@@ -51,13 +51,16 @@ export default function CourseRewardsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Ensure at least costXP is set to a positive number if neither is specified
+    const costXP = formData.costXP > 0 ? formData.costXP : 10; // Default to 10 XP if not specified
+    
     const rewardData = {
       ...formData,
       courseId,
       active: true,
-      costXP: formData.costXP || undefined,
-      costLevel: formData.costLevel || undefined,
-      weeklyLimit: formData.weeklyLimit || undefined,
+      costXP,
+      weeklyLimit: formData.weeklyLimit > 0 ? formData.weeklyLimit : undefined,
+      category: formData.category || 'Sonstiges', // Ensure category is not empty
     };
 
     if (editingReward) {
@@ -72,10 +75,10 @@ export default function CourseRewardsPage() {
     setFormData({
       name: '',
       description: '',
-      costXP: 0,
+      costXP: 10,
       costLevel: 0,
       weeklyLimit: 0,
-      category: '',
+      category: 'Sonstiges',
       emoji: '🎁'
     });
   };

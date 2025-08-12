@@ -16,12 +16,17 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const filters = studentFilterSchema.parse({
+    
+    // Extract raw parameters - searchParams.get() returns string | null
+    const rawParams = {
       courseId: searchParams.get('courseId'),
-      active: searchParams.get('active') ? searchParams.get('active') === 'true' : undefined,
+      active: searchParams.get('active'),
       color: searchParams.get('color'),
       search: searchParams.get('search'),
-    });
+    };
+    
+    // Validate and transform the parameters properly
+    const filters = studentFilterSchema.parse(rawParams);
 
     // Build where clause
     const where: any = {};
@@ -91,7 +96,7 @@ export async function GET(request: NextRequest) {
       ],
     });
 
-    return NextResponse.json(students);
+    return NextResponse.json({ students });
   } catch (error) {
     return handleApiError(error);
   }
