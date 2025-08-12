@@ -39,8 +39,12 @@ export default function NewCoursePage() {
 
     setIsLoading(true);
     try {
-      await createCourse(formData);
-      router.push('/courses');
+      const newCourse = await createCourse(formData);
+      if (newCourse && newCourse.id) {
+        router.push(`/courses/${newCourse.id}`);
+      } else {
+        router.push('/courses');
+      }
     } catch (error) {
       console.error('Failed to create course:', error);
       alert('Fehler beim Erstellen des Kurses');
