@@ -16,7 +16,8 @@ class APIClient {
   private defaultHeaders: HeadersInit;
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || '';
+    // Use relative URLs so it works on any domain
+    this.baseURL = '';
     this.defaultHeaders = {
       'Content-Type': 'application/json',
     };
