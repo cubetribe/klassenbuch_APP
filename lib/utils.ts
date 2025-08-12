@@ -45,14 +45,23 @@ export function getColorClasses(color: 'blue' | 'green' | 'yellow' | 'red') {
   }
 }
 
-export function formatDate(date: Date): string {
+export function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return 'Nie';
+  
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  // Check for invalid date
+  if (isNaN(dateObj.getTime())) {
+    return 'Nie';
+  }
+  
   return new Intl.DateTimeFormat('de-DE', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
-  }).format(date);
+  }).format(dateObj);
 }
 
 export function generateId(): string {
