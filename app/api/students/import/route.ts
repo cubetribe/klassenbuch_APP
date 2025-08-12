@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     const initialXP = courseSettings?.levelSystem?.startXP || 50;
 
     // Prepare students for bulk creation
-    const studentsToCreate = [];
+    const studentsToCreate: any[] = [];
     const usedCodes = new Set<string>();
     
     // Get existing internal codes to avoid duplicates

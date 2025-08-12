@@ -59,9 +59,12 @@ export async function POST(request: NextRequest) {
 
     const course = await prisma.course.create({
       data: {
-        ...validatedData,
+        name: validatedData.name,
+        subject: validatedData.subject,
+        schoolYear: validatedData.schoolYear,
         teacherId: session.user.id,
         settings: validatedData.settings || {},
+        archived: false,
       },
     });
 

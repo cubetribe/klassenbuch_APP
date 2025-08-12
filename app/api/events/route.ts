@@ -305,8 +305,11 @@ async function handleBulkEvents(body: any, userId: string) {
     for (const eventData of validatedData.events) {
       const event = await tx.behaviorEvent.create({
         data: {
-          ...eventData,
+          type: eventData.type || 'MANUAL_ACTION',
+          studentId: eventData.studentId!,
           courseId: validatedData.courseId,
+          payload: eventData.payload || {},
+          notes: eventData.notes,
           createdBy: userId,
         },
       });

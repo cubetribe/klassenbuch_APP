@@ -36,7 +36,7 @@ export function StudentCard({
     } else {
       addSelectedStudent(student.id);
     }
-    onClick?.(student);
+    onClick?.();
   };
 
   return (

@@ -89,6 +89,14 @@ export async function POST(request: NextRequest) {
         updatedStudent = await tx.student.update({
           where: { id: validatedData.studentId },
           data: { currentXP: newXP },
+          include: {
+            course: {
+              select: {
+                id: true,
+                teacherId: true,
+              }
+            }
+          }
         });
 
         // Create behavior event for XP change
@@ -100,7 +108,7 @@ export async function POST(request: NextRequest) {
             payload: {
               rewardId: validatedData.rewardId,
               rewardName: reward.name,
-              costXP: reward.costXP,
+              costXP: reward.costXP || 0,
               previousXP: student.currentXP,
               newXP,
             },
@@ -135,7 +143,7 @@ export async function POST(request: NextRequest) {
           metadata: {
             studentName: student.displayName,
             rewardName: reward.name,
-            costXP: reward.costXP,
+            costXP: reward.costXP || 0,
           },
         },
       });
@@ -151,7 +159,7 @@ export async function POST(request: NextRequest) {
       studentId: student.id,
       studentName: student.displayName,
       rewardName: reward.name,
-      costXP: reward.costXP,
+      costXP: reward.costXP || 0,
     });
 
     // If XP was updated, broadcast student update

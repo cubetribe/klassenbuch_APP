@@ -1,8 +1,7 @@
 {
-  "name": "klassenbuch-app",
-  "buildCommand": "next build",
-  "devCommand": "next dev",
-  "installCommand": "npm install",
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": ".next",
   "framework": "nextjs",
-  "outputDirectory": ".next"
+  "installCommand": "npm install",
+  "regions": ["fra1"]
 }

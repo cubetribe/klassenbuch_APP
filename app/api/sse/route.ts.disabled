@@ -24,10 +24,7 @@ export async function GET(request: NextRequest) {
   if (subscribeCourseIds.length === 0) {
     const userCourses = await prisma.course.findMany({
       where: {
-        OR: [
-          { teacherId: session.user.id },
-          { enrollments: { some: { userId: session.user.id } } },
-        ],
+        teacherId: session.user.id,
       },
       select: { id: true },
     });
@@ -38,10 +35,7 @@ export async function GET(request: NextRequest) {
   const accessibleCourses = await prisma.course.findMany({
     where: {
       id: { in: subscribeCourseIds },
-      OR: [
-        { teacherId: session.user.id },
-        { enrollments: { some: { userId: session.user.id } } },
-      ],
+      teacherId: session.user.id,
     },
     select: { id: true },
   });

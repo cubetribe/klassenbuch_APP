@@ -147,13 +147,17 @@ export async function POST(request: NextRequest) {
       };
     });
 
+    // Calculate XP penalty based on severity (same as above)
+    const xpPenalty = consequence.severity === 'MINOR' ? 5 : 
+                     consequence.severity === 'MODERATE' ? 10 : 20;
+
     // Broadcast the consequence application
     await broadcastConsequenceApplication(student.course.id, {
       studentId: student.id,
       studentName: student.displayName,
       consequenceName: consequence.name,
       severity: consequence.severity,
-      xpPenalty,
+      xpPenalty: xpPenalty,
     });
 
     // Broadcast student XP update

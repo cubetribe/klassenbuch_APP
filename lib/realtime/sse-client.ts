@@ -109,7 +109,7 @@ export class SSEClient extends EventEmitter {
         }
         
         this.emit('error', error);
-        this.options.onError?.(error as Error);
+        this.options.onError?.(new Error(`SSE connection error: ${error.type}`));
       };
     } catch (error) {
       console.error('[SSE] Failed to create EventSource:', error);

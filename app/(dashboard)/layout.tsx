@@ -29,8 +29,6 @@ export default function DashboardLayout({
             email: session.user.email as string,
             name: session.user.name as string,
             role: (session.user as any).role || 'TEACHER',
-            createdAt: new Date(),
-            updatedAt: new Date(),
           },
           isAuthenticated: true
         });

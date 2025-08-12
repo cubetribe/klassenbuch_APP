@@ -85,8 +85,11 @@ export async function GET(request: NextRequest) {
       currentColor: colorMap[student.currentColor] || student.currentColor,
     }));
 
-    // Generate CSV
-    const csvContent = generateStudentCSV(exportData);
+    // Generate CSV (convert null to undefined for avatarEmoji)
+    const csvContent = generateStudentCSV(exportData.map(s => ({
+      ...s,
+      avatarEmoji: s.avatarEmoji || undefined
+    })));
 
     // Create audit log
     await prisma.auditLog.create({
