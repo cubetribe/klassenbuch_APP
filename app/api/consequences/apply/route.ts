@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth/config';
 import { prisma } from '@/lib/db/prisma';
 import { applyConsequenceSchema, bulkApplyConsequenceSchema } from '@/lib/validations/consequence';
 import { handleApiError, UnauthorizedError, ValidationError, ForbiddenError, NotFoundError } from '@/lib/api/errors';
+import { broadcastConsequenceApplication, broadcastStudentUpdate } from '@/lib/sse/broadcast';
 
 // POST /api/consequences/apply - Apply a consequence to student(s)
 export async function POST(request: NextRequest) {
@@ -144,6 +145,20 @@ export async function POST(request: NextRequest) {
         application,
         student: updatedStudent,
       };
+    });
+
+    // Broadcast the consequence application
+    await broadcastConsequenceApplication(student.course.id, {
+      studentId: student.id,
+      studentName: student.displayName,
+      consequenceName: consequence.name,
+      severity: consequence.severity,
+      xpPenalty,
+    });
+
+    // Broadcast student XP update
+    await broadcastStudentUpdate(student.course.id, student.id, {
+      currentXP: result.student.currentXP,
     });
 
     return NextResponse.json({

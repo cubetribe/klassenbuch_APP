@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { redeemRewardSchema, bulkRedeemSchema } from '@/lib/validations/reward';
 import { checkRedemptionEligibility, calculateXPAfterRedemption } from '@/lib/utils/redemption-logic';
 import { handleApiError, UnauthorizedError, ValidationError, ForbiddenError } from '@/lib/api/errors';
+import { broadcastRewardRedemption, broadcastStudentUpdate } from '@/lib/sse/broadcast';
 
 // POST /api/rewards/redeem - Redeem a reward for student(s)
 export async function POST(request: NextRequest) {
@@ -144,6 +145,21 @@ export async function POST(request: NextRequest) {
         student: updatedStudent,
       };
     });
+
+    // Broadcast the redemption event
+    await broadcastRewardRedemption(student.course.id, {
+      studentId: student.id,
+      studentName: student.displayName,
+      rewardName: reward.name,
+      costXP: reward.costXP,
+    });
+
+    // If XP was updated, broadcast student update
+    if (reward.costXP) {
+      await broadcastStudentUpdate(student.course.id, student.id, {
+        currentXP: result.student.currentXP,
+      });
+    }
 
     return NextResponse.json({
       message: 'Reward redeemed successfully',

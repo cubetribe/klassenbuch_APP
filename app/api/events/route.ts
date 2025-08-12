@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { createBehaviorEventSchema, bulkEventSchema, eventFilterSchema } from '@/lib/validations/event';
 import { applyXPChange } from '@/lib/utils/behavior-logic';
 import { handleApiError, UnauthorizedError, NotFoundError, ForbiddenError } from '@/lib/api/errors';
+import { broadcastBehaviorEvent, broadcastStudentUpdate } from '@/lib/sse/broadcast';
 
 // GET /api/events - Get behavior events with filters
 export async function GET(request: NextRequest) {
@@ -257,6 +258,18 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // Broadcast the event to connected clients
+    await broadcastBehaviorEvent(validatedData.courseId, completeEvent);
+    
+    // If student was updated, broadcast that too
+    if (Object.keys(updateData).length > 0) {
+      await broadcastStudentUpdate(
+        validatedData.courseId,
+        validatedData.studentId,
+        updateData
+      );
+    }
 
     return NextResponse.json(completeEvent, { status: 201 });
   } catch (error) {

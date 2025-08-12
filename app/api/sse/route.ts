@@ -1,0 +1,135 @@
+import { NextRequest } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/config';
+import { prisma } from '@/lib/db/prisma';
+import { connectionManager } from '@/lib/sse/connection-manager';
+import { eventEmitter } from '@/lib/sse/event-emitter';
+import { v4 as uuidv4 } from 'uuid';
+
+// GET /api/sse - Server-Sent Events endpoint for real-time updates
+export async function GET(request: NextRequest) {
+  // Get session
+  const session = await getServerSession(authOptions);
+  
+  if (!session?.user?.id) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+
+  // Get course IDs from query params
+  const searchParams = request.nextUrl.searchParams;
+  const courseIds = searchParams.get('courseIds')?.split(',').filter(Boolean) || [];
+
+  // If no course IDs provided, get all user's courses
+  let subscribeCourseIds = courseIds;
+  if (subscribeCourseIds.length === 0) {
+    const userCourses = await prisma.course.findMany({
+      where: {
+        OR: [
+          { teacherId: session.user.id },
+          { enrollments: { some: { userId: session.user.id } } },
+        ],
+      },
+      select: { id: true },
+    });
+    subscribeCourseIds = userCourses.map(c => c.id);
+  }
+
+  // Verify user has access to requested courses
+  const accessibleCourses = await prisma.course.findMany({
+    where: {
+      id: { in: subscribeCourseIds },
+      OR: [
+        { teacherId: session.user.id },
+        { enrollments: { some: { userId: session.user.id } } },
+      ],
+    },
+    select: { id: true },
+  });
+
+  const validCourseIds = accessibleCourses.map(c => c.id);
+
+  if (validCourseIds.length === 0) {
+    return new Response('No accessible courses', { status: 403 });
+  }
+
+  // Create SSE response with proper headers
+  const encoder = new TextEncoder();
+  const stream = new TransformStream();
+  const writer = stream.writable.getWriter();
+
+  // Create unique connection ID
+  const connectionId = uuidv4();
+
+  // Register connection
+  const connection = connectionManager.createConnection(
+    connectionId,
+    session.user.id,
+    validCourseIds,
+    writer
+  );
+
+  // Send initial connection message
+  const initMessage = `data: ${JSON.stringify({
+    type: 'connection',
+    data: {
+      connectionId,
+      subscribedCourses: validCourseIds,
+      userId: session.user.id,
+    },
+    timestamp: new Date(),
+  })}\n\n`;
+  
+  writer.write(encoder.encode(initMessage));
+
+  // Handle client disconnect
+  request.signal.addEventListener('abort', () => {
+    connectionManager.closeConnection(connectionId);
+  });
+
+  // Set up event listeners for each course
+  const listeners = new Map();
+  validCourseIds.forEach(courseId => {
+    const listener = async (event: any) => {
+      try {
+        const message = `data: ${JSON.stringify(event)}\n\n`;
+        await writer.write(encoder.encode(message));
+      } catch (error) {
+        // Connection closed, clean up
+        connectionManager.closeConnection(connectionId);
+      }
+    };
+    
+    eventEmitter.subscribeToCourse(courseId, listener);
+    listeners.set(courseId, listener);
+  });
+
+  // Clean up listeners on disconnect
+  request.signal.addEventListener('abort', () => {
+    listeners.forEach((listener, courseId) => {
+      eventEmitter.unsubscribeFromCourse(courseId, listener);
+    });
+  });
+
+  return new Response(stream.readable, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      'Connection': 'keep-alive',
+      // CORS headers if needed
+      'Access-Control-Allow-Origin': '*',
+      'X-Accel-Buffering': 'no', // Disable Nginx buffering
+    },
+  });
+}
+
+// OPTIONS /api/sse - Handle CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
+}
