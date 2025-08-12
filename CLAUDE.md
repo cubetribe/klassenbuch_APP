@@ -4,11 +4,37 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Version: 0.8.0 (Beta)**
+**Version: 0.8.2 (CRITICAL ISSUES)**
 
 This is a Next.js 13.5.1 application for classroom behavior management (Klassenbuch App), designed for German schools with strict GDPR compliance. The app tracks student behavior using a gamified color/XP system and is built with production-ready backend integration.
 
-**Status**: Feature-complete, ready for Vercel deployment with demo authentication.
+**Status**: ⚠️ PRODUCTION DEPLOYMENT BROKEN - CRITICAL ISSUES PENDING
+
+## 🚨 CRITICAL PRODUCTION ISSUES (Stand: 12. August 2025)
+
+### Database Connection Problems
+- ❌ **Keine Belohnungen sichtbar** - Trotz Datenwiederherstellung (8 rewards in DB)
+- ❌ **Keine Konsequenzen sichtbar** - Trotz Datenwiederherstellung (8 consequences in DB) 
+- ❌ **Schüler nicht bearbeitbar** - Keine CRUD-Operationen möglich
+- ❌ **Live Unterricht funktioniert nicht** - Kompletter Ausfall der Kernfunktion
+
+### Frontend Connectivity Issues  
+- ❌ **App zeigt "OFFLINE" Status** - War nur kurz online, dann wieder rot
+- ❌ **API Calls scheitern** - Alle Requests werden zu Login umgeleitet
+- ❌ **SSE Connection Error** - Server-Sent Events 404 Fehler
+- ❌ **Student Display broken** - Nur Emojis, keine Namen
+
+### Root Cause Analysis Needed
+- 🔍 **Database Connection**: Railway PostgreSQL Verbindungsprobleme vermutet
+- 🔍 **Authentication Flow**: NextAuth Session handling in Produktion defekt
+- 🔍 **API Route Resolution**: Serverless functions erreichen DB nicht
+- 🔍 **Vercel Deployment**: Möglicherweise incomplete deployment oder caching issues
+
+### Verified Working (Local)
+- ✅ Database enthält alle Daten (24 students, 5 courses, 8 rewards, 8 consequences)
+- ✅ Build process erfolgreich (alle routes kompiliert)
+- ✅ Lokale Entwicklung funktioniert
+- ✅ Schema migration angewendet
 
 ## Essential Commands
 
