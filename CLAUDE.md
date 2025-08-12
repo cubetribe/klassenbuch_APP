@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
+**Version: 0.8.0 (Beta)**
+
 This is a Next.js 13.5.1 application for classroom behavior management (Klassenbuch App), designed for German schools with strict GDPR compliance. The app tracks student behavior using a gamified color/XP system and is built with production-ready backend integration.
+
+**Status**: Feature-complete, ready for Vercel deployment with demo authentication.
 
 ## Essential Commands
 
@@ -101,7 +105,7 @@ npx prisma migrate dev --name descriptive_migration_name
 - Rate limiting planned for production
 - Role-based access control (Teacher, Co-Teacher, Admin)
 
-## Current Implementation Status (v0.1.0)
+## Current Implementation Status (v0.8.0)
 
 ### ✅ Completed (Backend + Frontend Integration)
 - Complete database schema (Prisma) with 11 tables

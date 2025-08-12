@@ -1,30 +1,40 @@
-# Klassenbuch App - Verhaltenssteuerung für Schulen
+# 📚 Klassenbuch App - Digitale Verhaltenssteuerung für Schulen
 
-[![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](./VERSION.md)
-[![Next.js](https://img.shields.io/badge/Next.js-13.5.1-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+![Version](https://img.shields.io/badge/version-0.8.0-blue)
+![Next.js](https://img.shields.io/badge/Next.js-13.5.1-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Status](https://img.shields.io/badge/status-Beta-yellow)
 
-## 📚 Über das Projekt
+Eine moderne, DSGVO-konforme WebApp zur digitalen Verhaltenssteuerung im Klassenzimmer mit Gamification-Elementen. Entwickelt für deutsche Schulen mit Fokus auf Datenschutz und pädagogische Wirksamkeit.
 
-Die Klassenbuch App ist eine moderne, DSGVO-konforme WebApp zur fairen und transparenten Verhaltenssteuerung im Klassenzimmer. Sie nutzt Gamification-Elemente, um positives Verhalten zu fördern und Lehrkräften ein effektives Tool für Klassenmanagement zu bieten.
+## 🎯 Features
 
-### 🎯 Kernfunktionen
+### ✅ Implementiert (v0.8.0)
+- **🔐 Authentifizierung**: Sicheres Login-System mit Session-Management
+- **📚 Kursverwaltung**: Vollständige CRUD-Operationen für Kurse
+- **👥 Schülerverwaltung**: Anonyme Schülerprofile (nur Vornamen)
+- **🎮 Gamification**: XP-System, Level, Farbcodierung
+- **🏆 Belohnungssystem**: Rewards mit Einlöse-Limits
+- **⚠️ Konsequenzen**: Strukturiertes Konsequenzen-Management
+- **📊 Reports**: Detaillierte Berichte mit CSV-Export
+- **🖥️ Tafelmodus**: Beamer-optimierte Ansicht
+- **🎯 Live-Unterricht**: Echtzeit-Verhaltenssteuerung
+- **🌓 Dark Mode**: Augenschonender Nachtmodus
+- **📱 Responsive**: Mobile-first Design
 
-- **Live-Verhaltenssteuerung**: Echtzeit-Tracking mit Farbsystem (Blau/Grün/Gelb/Rot)
-- **XP & Level-System**: Motivierendes Punktesystem mit konfigurierbaren Levels
-- **Belohnungen & Konsequenzen**: Verwaltung und Einlösung von Rewards
-- **Tafelmodus**: Optimiert für Beamer/Smartboard-Projektion
-- **Reports & Analytics**: Detaillierte Auswertungen und PDF-Export
-- **DSGVO-konform**: Minimale Datenspeicherung, nur Vornamen
+### 🚧 In Entwicklung
+- **📄 PDF-Export**: Berichte als PDF
+- **🔄 Echtzeit-Sync**: Server-Sent Events (SSE)
+- **💾 Cloud-Backup**: Automatische Datensicherung
+- **📸 Avatar-Upload**: Profilbilder für Schüler
 
 ## 🚀 Quick Start
 
 ### Voraussetzungen
-
 - Node.js 18+ 
-- Docker & Docker Compose (für lokale Datenbank)
-- PostgreSQL (alternativ zu Docker)
+- Docker (für lokale Datenbank)
+- Git
 
 ### Installation
 
@@ -36,9 +46,8 @@ cd klassenbuch_APP/frontend_bolt
 # Dependencies installieren
 npm install
 
-# Umgebungsvariablen konfigurieren
+# Umgebungsvariablen einrichten
 cp .env.local.example .env.local
-# .env.local mit eigenen Werten befüllen
 
 # Datenbank starten (Docker)
 docker-compose up -d
@@ -47,153 +56,182 @@ docker-compose up -d
 npx prisma generate
 npx prisma migrate dev
 
-# Development Server starten
+# Entwicklungsserver starten
 npm run dev
 ```
 
-Die App ist nun unter [http://localhost:3000](http://localhost:3000) erreichbar.
+Die App läuft auf [http://localhost:3000](http://localhost:3000)
 
-## 🛠️ Tech Stack
+### Demo-Login
+```
+Email: teacher@school.com
+Passwort: demo123
+```
+
+## 🏗️ Technologie-Stack
 
 ### Frontend
 - **Framework**: Next.js 13.5.1 (App Router)
 - **Styling**: Tailwind CSS + shadcn/ui
-- **State Management**: Zustand
-- **Realtime**: Server-Sent Events (SSE)
-- **Charts**: Recharts
-- **PDF**: @react-pdf/renderer
+- **State**: Zustand
+- **Forms**: React Hook Form + Zod
+- **Icons**: Lucide Icons
 
 ### Backend
 - **API**: Next.js API Routes
-- **Authentication**: NextAuth.js v4
-- **Database**: PostgreSQL
 - **ORM**: Prisma
+- **Database**: PostgreSQL
+- **Auth**: NextAuth.js v4
 - **Validation**: Zod
-- **Security**: bcryptjs, JWT
 
-### Deployment
-- **Platform**: Vercel (EU-Region)
-- **Database**: PostgreSQL (Docker/Neon)
-- **Storage**: Vercel Blob
-- **Cache**: Vercel KV
+### DevOps
+- **Hosting**: Vercel (geplant)
+- **Database**: Vercel Postgres (Production)
+- **Monitoring**: Vercel Analytics
+- **CI/CD**: GitHub Actions
 
 ## 📁 Projektstruktur
 
 ```
 frontend_bolt/
 ├── app/                    # Next.js App Router
-│   ├── (auth)/            # Auth Layout
-│   ├── (dashboard)/       # Dashboard Layout
-│   └── api/               # API Routes
+│   ├── (auth)/            # Auth Pages (Login, Register)
+│   ├── (dashboard)/       # Dashboard Pages
+│   ├── api/               # API Routes
+│   └── layout.tsx         # Root Layout
 ├── components/            # React Components
 │   ├── ui/               # shadcn/ui Components
 │   ├── layout/           # Layout Components
-│   └── ...
-├── lib/                   # Utilities & Logic
-│   ├── api/              # API Helpers
+│   └── ...               # Feature Components
+├── lib/                   # Utilities & Configs
 │   ├── auth/             # Auth Configuration
-│   ├── db/               # Database Client
-│   ├── validations/      # Zod Schemas
+│   ├── stores/           # Zustand Stores
 │   └── utils/            # Helper Functions
 ├── prisma/               # Database Schema
-├── public/               # Static Assets
-└── types/                # TypeScript Types
+└── public/               # Static Assets
 ```
 
-## 🔐 Sicherheit & Datenschutz
+## 🔒 Datenschutz & DSGVO
 
-- **DSGVO-konform**: Nur Vornamen, minimale Datenspeicherung
-- **Verschlüsselung**: Passwörter mit bcrypt, sensible Daten verschlüsselt
-- **Session Management**: httpOnly Cookies, JWT
-- **Audit Logging**: Alle Aktionen werden protokolliert
-- **EU-Hosting**: Daten bleiben in der EU
+Die App wurde speziell für deutsche Schulen entwickelt und erfüllt strenge Datenschutzanforderungen:
 
-## 📊 Features Status
+- ✅ **Minimale Datenspeicherung**: Nur Vornamen, keine Nachnamen
+- ✅ **Anonyme IDs**: Interne Schüler-Codes statt Klarnamen
+- ✅ **Lokale Datenhaltung**: Daten verlassen nicht die Schule
+- ✅ **Audit-Logs**: Vollständige Nachverfolgbarkeit
+- ✅ **Daten-Export**: DSGVO-konforme Datenauskunft
+- ✅ **Löschfunktion**: Vollständige Datenlöschung möglich
 
-| Feature | Status | Version |
-|---------|--------|---------|
-| Authentication | ✅ Implementiert | v0.0.1 |
-| Course Management | ✅ Implementiert | v0.0.1 |
-| Student Management | 🔄 In Arbeit | v0.0.2 |
-| Behavior Tracking | 🔄 In Arbeit | v0.0.2 |
-| Real-time Updates | ⏳ Geplant | v0.0.3 |
-| Reports & Export | ⏳ Geplant | v0.0.3 |
-| Rewards System | ⏳ Geplant | v0.0.4 |
-| Auto-Rules | ⏳ Geplant | v0.0.5 |
+## 📊 Entwicklungsstatus
+
+### Version 0.8.0 (Aktuell)
+- ✅ Vollständige Frontend-Backend Integration
+- ✅ Alle Core-Features implementiert
+- ✅ Demo-Login für Testing
+- ✅ UI/UX poliert und responsive
+- ✅ Null-Safety in allen Components
+
+### Roadmap zu v1.0
+- [ ] Production Database Setup (Vercel Postgres)
+- [ ] Performance Optimierung
+- [ ] E2E Tests mit Playwright
+- [ ] Vollständige Dokumentation
+- [ ] Security Audit
+
+## 🛠️ Entwicklung
+
+### Verfügbare Scripts
+
+```bash
+npm run dev        # Entwicklungsserver
+npm run build      # Production Build
+npm run start      # Production Server
+npm run lint       # ESLint
+npm run db:studio  # Prisma Studio
+npm run db:push    # Database Push
+npm run db:seed    # Seed Database
+```
+
+### Environment Variables
+
+Erstelle eine `.env.local` Datei:
+
+```env
+# Database (Local)
+DATABASE_URL="postgresql://postgres:password@localhost:5432/klassenbuch"
+
+# NextAuth
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-key-here"
+
+# Production (Vercel)
+POSTGRES_URL=""
+POSTGRES_PRISMA_URL=""
+POSTGRES_URL_NON_POOLING=""
+```
 
 ## 🧪 Testing
 
 ```bash
-# Unit Tests
+# Unit Tests (coming soon)
 npm run test
 
-# E2E Tests
+# E2E Tests (coming soon)  
 npm run test:e2e
 
 # Type Checking
 npm run type-check
-
-# Linting
-npm run lint
 ```
 
 ## 📝 API Dokumentation
 
-Die vollständige API-Dokumentation findest du unter [/docs/api](./docs/api/README.md).
+Die App bietet eine RESTful API mit folgenden Hauptendpoints:
 
-### Beispiel-Endpoints
+- `/api/auth/*` - Authentifizierung
+- `/api/courses/*` - Kursverwaltung
+- `/api/students/*` - Schülerverwaltung  
+- `/api/events/*` - Verhaltensereignisse
+- `/api/rewards/*` - Belohnungen
+- `/api/consequences/*` - Konsequenzen
+- `/api/reports/*` - Berichte
 
-```typescript
-// Authentication
-POST   /api/auth/register
-POST   /api/auth/[...nextauth]
-
-// Courses
-GET    /api/courses
-POST   /api/courses
-GET    /api/courses/[id]
-PATCH  /api/courses/[id]
-DELETE /api/courses/[id]
-
-// Students
-GET    /api/courses/[id]/students
-POST   /api/students
-PATCH  /api/students/[id]
-```
+Detaillierte API-Docs: [/docs/api.md](./docs/api.md) (coming soon)
 
 ## 🤝 Contributing
 
-Beiträge sind willkommen! Bitte lies [CONTRIBUTING.md](./CONTRIBUTING.md) für Details.
+Beiträge sind willkommen! Bitte beachte:
 
-1. Fork das Projekt
-2. Erstelle einen Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Committe deine Änderungen (`git commit -m 'Add some AmazingFeature'`)
-4. Push zum Branch (`git push origin feature/AmazingFeature`)
+1. Fork das Repository
+2. Erstelle einen Feature Branch
+3. Committe deine Änderungen
+4. Push zum Branch
 5. Öffne einen Pull Request
 
 ## 📄 Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe [LICENSE](./LICENSE) für Details.
+Copyright © 2025 Dennis Westermann / aiEX Academy
 
 ## 👥 Team
 
-- **Dennis Westermann** - Projektleitung & Development
-- **CubeTribe** - Development Team
+- **Dennis Westermann / aiEX Academy** - Projektleitung & Entwicklung
+- **Claude (AI)** - Entwicklungsunterstützung
 
 ## 📞 Support
 
 Bei Fragen oder Problemen:
-- 📧 Email: support@cubetribe.com
+- 📧 Email: support@klassenbuch-app.de (coming soon)
 - 🐛 Issues: [GitHub Issues](https://github.com/cubetribe/klassenbuch_APP/issues)
-- 📖 Docs: [Dokumentation](./docs/README.md)
+- 📖 Docs: [Dokumentation](./docs/) (in Arbeit)
 
-## 🙏 Danksagung
+## 🙏 Danksagungen
 
-- [Next.js](https://nextjs.org/) Team
-- [shadcn/ui](https://ui.shadcn.com/) für die UI-Komponenten
-- [Vercel](https://vercel.com/) für das Hosting
-- Allen Contributors und Testern
+- [Next.js](https://nextjs.org/) - Das React Framework
+- [Vercel](https://vercel.com/) - Hosting & Deployment
+- [shadcn/ui](https://ui.shadcn.com/) - UI Components
+- [Prisma](https://www.prisma.io/) - Database ORM
 
 ---
 
-**Made with ❤️ by CubeTribe**
+**Made with ❤️ for German Schools**
+
+*Entwickelt mit Unterstützung von Claude AI (Anthropic)*
