@@ -1,10 +1,10 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { validateDemoUser } from './demo-users';
+import { prisma } from '@/lib/db/prisma';
+import bcrypt from 'bcryptjs';
 
-// WICHTIG: Demo-Modus ist aktiviert!
-// TODO: Nach Vercel Deployment auf echte DB umstellen
-const USE_DEMO_AUTH = true;
+// Production mode - using real database
+const USE_DEMO_AUTH = false;
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -19,25 +19,35 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // Demo-Modus (für Vercel Deployment)
-        if (USE_DEMO_AUTH) {
-          const demoUser = validateDemoUser(credentials.email, credentials.password);
-          if (demoUser) {
-            return {
-              id: demoUser.id,
-              email: demoUser.email,
-              name: demoUser.name,
-              role: demoUser.role,
-            };
+        try {
+          // Use real database
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+          });
+
+          if (!user || !user.passwordHash) {
+            return null;
           }
+
+          const passwordValid = await bcrypt.compare(
+            credentials.password,
+            user.passwordHash
+          );
+
+          if (!passwordValid) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error('Auth error:', error);
           return null;
         }
-
-        // Production-Modus (TODO: Aktivieren nach DB-Setup)
-        // const user = await validateUserFromDatabase(credentials);
-        // return user;
-        
-        return null;
       },
     }),
   ],
