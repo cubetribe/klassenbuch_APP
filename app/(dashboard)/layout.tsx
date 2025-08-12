@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppStore } from '@/lib/stores';
-import { mockUser, mockCourses, mockStudents } from '@/lib/mock-data';
+import { useAppStore } from '@/lib/stores/app-store';
+import { SSEProvider } from '@/lib/stores/sse-integration';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -13,19 +13,20 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, setUser, setCourses, setStudents } = useAppStore();
+  const { isAuthenticated, checkAuth, isLoading } = useAppStore();
   const router = useRouter();
 
   useEffect(() => {
-    // Mock authentication check
-    if (!isAuthenticated) {
-      setUser(mockUser);
-      setCourses(mockCourses);
-      setStudents(mockStudents);
-    }
-  }, [isAuthenticated, setUser, setCourses, setStudents]);
+    checkAuth();
+  }, [checkAuth]);
 
-  if (!isAuthenticated) {
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
@@ -33,15 +34,21 @@ export default function DashboardLayout({
     );
   }
 
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-background flex">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
+    <SSEProvider>
+      <div className="min-h-screen bg-background flex">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header />
+          <main className="flex-1 overflow-y-auto p-6">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </SSEProvider>
   );
 }

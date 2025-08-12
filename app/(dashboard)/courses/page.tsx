@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { useAppStore } from '@/lib/stores';
+import { useState, useEffect } from 'react';
+import { useAppStore } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,9 +12,20 @@ import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
 
 export default function CoursesPage() {
-  const { courses, students, setCurrentCourse } = useAppStore();
+  const { 
+    courses, 
+    students, 
+    coursesLoading,
+    setCurrentCourse, 
+    fetchCourses,
+    deleteCourse 
+  } = useAppStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   const filteredCourses = courses
     .filter(course => showArchived || !course.archived)

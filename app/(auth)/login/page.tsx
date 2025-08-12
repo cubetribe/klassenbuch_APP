@@ -1,11 +1,8 @@
 "use client";
 
-"use client";
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppStore } from '@/lib/stores';
-import { mockUser } from '@/lib/mock-data';
+import { useAppStore } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,29 +13,20 @@ import Link from 'next/link';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { setUser } = useAppStore();
+  const { login, isLoading } = useAppStore();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
-    try {
-      // Mock authentication - in real app, this would be an API call
-      if (email === 'teacher@school.com' && password === 'demo123') {
-        setUser(mockUser);
-        router.push('/dashboard');
-      } else {
-        setError('Ungültige Anmeldedaten');
-      }
-    } catch (err) {
-      setError('Fehler bei der Anmeldung');
-    } finally {
-      setLoading(false);
+    const success = await login(email, password);
+    if (success) {
+      router.push('/dashboard');
+    } else {
+      setError('Ungültige Anmeldedaten');
     }
   };
 
@@ -87,9 +75,9 @@ export default function LoginPage() {
             <Button 
               type="submit" 
               className="w-full"
-              disabled={loading}
+              disabled={isLoading}
             >
-              {loading ? 'Anmelden...' : 'Anmelden'}
+              {isLoading ? 'Anmelden...' : 'Anmelden'}
             </Button>
 
             <div className="text-center space-y-2">

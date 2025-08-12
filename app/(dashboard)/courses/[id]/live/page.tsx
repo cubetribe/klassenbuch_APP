@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
-import { useAppStore } from '@/lib/stores';
+import { useAppStore } from '@/lib/stores/app-store';
 import { StudentGrid } from '@/components/students/student-grid';
 import { QuickActions } from '@/components/behavior/quick-actions';
 import { Button } from '@/components/ui/button';
@@ -22,12 +22,21 @@ export default function LivePage({ params }: LivePageProps) {
     setCurrentCourse, 
     selectedStudents,
     clearSelectedStudents,
-    realtimeConnection
+    realtimeConnection,
+    fetchCourses,
+    fetchStudents,
+    createEvent,
+    createBulkEvents
   } = useAppStore();
 
   const course = courses.find(c => c.id === params.id);
   const courseStudents = students.filter(s => s.courseId === params.id && s.active);
 
+  useEffect(() => {
+    fetchCourses();
+    fetchStudents(params.id);
+  }, [params.id, fetchCourses, fetchStudents]);
+  
   useEffect(() => {
     if (course && course.id !== currentCourse?.id) {
       setCurrentCourse(course);

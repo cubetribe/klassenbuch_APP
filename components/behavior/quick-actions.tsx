@@ -2,9 +2,8 @@
 
 import { QuickAction } from '@/types';
 import { Button } from '@/components/ui/button';
-import { useAppStore } from '@/lib/stores';
+import { useAppStore } from '@/lib/stores/app-store';
 import { toast } from 'sonner';
-import { generateId } from '@/lib/utils';
 
 interface QuickActionsProps {
   actions: QuickAction[];
@@ -14,51 +13,47 @@ interface QuickActionsProps {
 export function QuickActions({ actions, onActionClick }: QuickActionsProps) {
   const { 
     selectedStudents, 
-    students, 
-    updateStudent, 
-    addPendingEvent, 
+    students,
+    currentCourse,
+    createBulkEvents,
     clearSelectedStudents 
   } = useAppStore();
 
-  const handleActionClick = (action: QuickAction) => {
+  const handleActionClick = async (action: QuickAction) => {
     if (selectedStudents.length === 0) {
       toast.error('Bitte wählen Sie mindestens einen Schüler aus');
       return;
     }
 
-    // Apply action to selected students
-    selectedStudents.forEach(studentId => {
+    if (!currentCourse) {
+      toast.error('Kein Kurs ausgewählt');
+      return;
+    }
+
+    // Create behavior events for selected students
+    const events = selectedStudents.map(studentId => {
       const student = students.find(s => s.id === studentId);
-      if (!student) return;
+      if (!student) return null;
 
-      const newXP = Math.max(0, Math.min(100, student.currentXP + action.xpChange));
-      
-      // Update student
-      updateStudent(studentId, { 
-        currentXP: newXP,
-        updatedAt: new Date() 
-      });
-
-      // Add event to pending
-      addPendingEvent({
-        id: generateId(),
+      return {
         studentId,
-        courseId: student.courseId,
-        type: 'color_change',
+        courseId: currentCourse.id,
+        type: 'QUICK_ACTION',
         payload: { 
           action: action.label, 
           xpChange: action.xpChange,
-          oldXP: student.currentXP,
-          newXP
+          icon: action.icon
         },
-        createdBy: 'current-user',
-        createdAt: new Date()
-      });
-    });
+        notes: `Quick Action: ${action.label}`
+      };
+    }).filter(Boolean) as any[];
 
-    toast.success(`"${action.label}" wurde auf ${selectedStudents.length} Schüler angewendet`);
-    clearSelectedStudents();
-    onActionClick?.(action);
+    if (events.length > 0) {
+      await createBulkEvents(events);
+      toast.success(`"${action.label}" wurde auf ${selectedStudents.length} Schüler angewendet`);
+      clearSelectedStudents();
+      onActionClick?.(action);
+    }
   };
 
   if (selectedStudents.length === 0) return null;

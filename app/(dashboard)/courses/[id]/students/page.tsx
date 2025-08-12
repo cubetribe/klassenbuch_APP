@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { useAppStore } from '@/lib/stores';
+import { useState, useEffect } from 'react';
+import { useAppStore } from '@/lib/stores/app-store';
 import { Student } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,17 @@ interface StudentsPageProps {
 }
 
 export default function StudentsPage({ params }: StudentsPageProps) {
-  const { courses, students, setStudents } = useAppStore();
+  const { 
+    courses, 
+    students, 
+    studentsLoading,
+    fetchCourses,
+    fetchStudents,
+    createStudent,
+    deleteStudent,
+    importStudents,
+    exportStudents 
+  } = useAppStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [newStudent, setNewStudent] = useState({
@@ -28,6 +38,11 @@ export default function StudentsPage({ params }: StudentsPageProps) {
     internalCode: '',
     avatarEmoji: '👤'
   });
+  
+  useEffect(() => {
+    fetchCourses();
+    fetchStudents(params.id);
+  }, [params.id, fetchCourses, fetchStudents]);
 
   const course = courses.find(c => c.id === params.id);
   const courseStudents = students.filter(s => s.courseId === params.id);
@@ -37,30 +52,31 @@ export default function StudentsPage({ params }: StudentsPageProps) {
     student.internalCode.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddStudent = () => {
+  const handleAddStudent = async () => {
     if (!newStudent.displayName.trim() || !newStudent.internalCode.trim()) {
       toast.error('Bitte füllen Sie alle Pflichtfelder aus');
       return;
     }
 
-    const student: Student = {
-      id: generateId(),
+    const success = await createStudent({
       courseId: params.id,
       displayName: newStudent.displayName,
       internalCode: newStudent.internalCode,
-      avatarEmoji: newStudent.avatarEmoji,
-      currentColor: 'green',
-      currentLevel: 1,
-      currentXP: 50,
-      active: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+      emoji: newStudent.avatarEmoji
+    });
 
-    setStudents([...students, student]);
-    setNewStudent({ displayName: '', internalCode: '', avatarEmoji: '👤' });
-    setShowAddDialog(false);
-    toast.success('Schüler wurde hinzugefügt');
+    if (success) {
+      setNewStudent({ displayName: '', internalCode: '', avatarEmoji: '👤' });
+      setShowAddDialog(false);
+    }
+  };
+  
+  const handleCSVExport = () => {
+    exportStudents(params.id);
+  };
+  
+  const handleCSVImport = async (file: File) => {
+    await importStudents(file, params.id);
   };
 
   if (!course) {

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from 'react';
-import { useAppStore } from '@/lib/stores';
+import { useState, useEffect } from 'react';
+import { useAppStore } from '@/lib/stores/app-store';
+import apiClient from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,9 +18,47 @@ const COLORS = {
 };
 
 export default function ReportsPage() {
-  const { courses, students, currentCourse } = useAppStore();
+  const { 
+    courses, 
+    students, 
+    currentCourse,
+    events,
+    fetchCourses,
+    fetchStudents,
+    fetchEvents 
+  } = useAppStore();
   const [selectedCourse, setSelectedCourse] = useState(currentCourse?.id || '');
   const [timeRange, setTimeRange] = useState('30');
+  const [exporting, setExporting] = useState(false);
+  
+  useEffect(() => {
+    fetchCourses();
+    if (selectedCourse) {
+      fetchStudents(selectedCourse);
+      const endDate = new Date().toISOString();
+      const startDate = new Date(Date.now() - parseInt(timeRange) * 24 * 60 * 60 * 1000).toISOString();
+      fetchEvents({ courseId: selectedCourse, startDate, endDate });
+    }
+  }, [selectedCourse, timeRange, fetchCourses, fetchStudents, fetchEvents]);
+  
+  const handleExport = async () => {
+    if (!selectedCourse) return;
+    setExporting(true);
+    try {
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - parseInt(timeRange) * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      await apiClient.reports.generate({
+        courseId: selectedCourse,
+        startDate,
+        endDate,
+        format: 'pdf'
+      });
+    } catch (error) {
+      console.error('Export failed:', error);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const courseData = courses.find(c => c.id === selectedCourse);
   const courseStudents = students.filter(s => s.courseId === selectedCourse);
@@ -70,9 +109,9 @@ export default function ReportsPage() {
             <CalendarDays className="w-4 h-4 mr-2" />
             Zeitraum wählen
           </Button>
-          <Button>
+          <Button onClick={handleExport} disabled={exporting || !selectedCourse}>
             <Download className="w-4 h-4 mr-2" />
-            Exportieren
+            {exporting ? 'Exportiere...' : 'Exportieren'}
           </Button>
         </div>
       </div>

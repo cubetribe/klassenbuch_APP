@@ -2,15 +2,19 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppStore } from '@/lib/stores';
+import { useAppStore } from '@/lib/stores/app-store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, BookOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function StudentsPage() {
-  const { currentCourse, courses } = useAppStore();
+  const { currentCourse, courses, fetchCourses } = useAppStore();
   const router = useRouter();
+  
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   useEffect(() => {
     // If there's a current course, redirect to its students page
