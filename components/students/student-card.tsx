@@ -5,7 +5,7 @@ import { getColorClasses, getInitials } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { useAppStore } from '@/lib/stores';
+import { useAppStore } from '@/lib/stores/app-store';
 
 interface StudentCardProps {
   student: Student;

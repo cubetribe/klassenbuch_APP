@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppStore } from '@/lib/stores';
+import { useAppStore } from '@/lib/stores/app-store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,9 +10,9 @@ import Link from 'next/link';
 export default function DashboardPage() {
   const { courses, students, currentCourse, setCurrentCourse } = useAppStore();
 
-  const activeCourses = courses.filter(c => !c.archived);
-  const totalStudents = students.length;
-  const avgLevel = students.reduce((sum, s) => sum + s.currentLevel, 0) / students.length || 0;
+  const activeCourses = (courses || []).filter(c => !c.archived);
+  const totalStudents = (students || []).length;
+  const avgLevel = (students || []).reduce((sum, s) => sum + s.currentLevel, 0) / (students || []).length || 0;
 
   const recentActivities = [
     { id: '1', text: 'Anna M. erreichte Level 3', time: '2 Min' },
@@ -46,7 +46,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{activeCourses.length}</div>
             <p className="text-xs text-muted-foreground">
-              {courses.length - activeCourses.length} archiviert
+              {(courses || []).length - activeCourses.length} archiviert
             </p>
           </CardContent>
         </Card>
@@ -100,7 +100,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {activeCourses.map((course) => {
-              const courseStudents = students.filter(s => s.courseId === course.id);
+              const courseStudents = (students || []).filter(s => s.courseId === course.id);
               const isCurrentCourse = currentCourse?.id === course.id;
               
               return (

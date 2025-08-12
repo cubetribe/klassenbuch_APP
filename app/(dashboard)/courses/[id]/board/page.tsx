@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useAppStore } from '@/lib/stores';
+import { useAppStore } from '@/lib/stores/app-store';
 import { Button } from '@/components/ui/button';
 import { StudentGrid } from '@/components/students/student-grid';
 import { getColorClasses } from '@/lib/utils';
@@ -16,8 +16,8 @@ export default function BoardPage({ params }: BoardPageProps) {
   const { courses, students, setBoardMode } = useAppStore();
   const [fullscreen, setFullscreen] = useState(false);
   
-  const course = courses.find(c => c.id === params.id);
-  const courseStudents = students.filter(s => s.courseId === params.id && s.active);
+  const course = (courses || []).find(c => c.id === params.id);
+  const courseStudents = (students || []).filter(s => s.courseId === params.id && s.active);
 
   useEffect(() => {
     setBoardMode(true);

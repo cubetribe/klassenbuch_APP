@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppStore } from '@/lib/stores';
+import { useAppStore } from '@/lib/stores/app-store';
 import { cn } from '@/lib/utils';
 import { 
   Home, 

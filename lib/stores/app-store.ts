@@ -39,6 +39,7 @@ interface AppState {
   boardMode: boolean;
   
   // Auth Actions
+  setUser: (user: User | null) => void;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
@@ -150,6 +151,8 @@ export const useAppStore = create<AppState>()(
         boardMode: false,
         
         // Auth Actions
+        setUser: (user) => set({ user, isAuthenticated: !!user }),
+        
         login: async (email, password) => {
           set({ isLoading: true });
           try {

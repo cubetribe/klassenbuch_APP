@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppStore } from '@/lib/stores';
+import { useAppStore } from '@/lib/stores/app-store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trophy, BookOpen, ArrowRight } from 'lucide-react';
@@ -30,9 +30,9 @@ export default function RewardsPage() {
 
       {/* Course Selection */}
       <div className="max-w-4xl mx-auto">
-        {courses.length > 0 ? (
+        {(courses || []).length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {courses
+            {(courses || [])
               .filter(course => !course.archived)
               .map((course) => (
                 <Card key={course.id} className="hover:shadow-md transition-shadow cursor-pointer">

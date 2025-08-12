@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { SSEProvider } from '@/lib/stores/sse-integration';
 import { Sidebar } from '@/components/layout/sidebar';
@@ -13,20 +14,37 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, checkAuth, isLoading } = useAppStore();
+  const { data: session, status } = useSession();
+  const { checkAuth } = useAppStore();
   const router = useRouter();
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    if (status === 'authenticated' && session?.user) {
+      // Set user in store directly from session
+      const { user, isAuthenticated } = useAppStore.getState();
+      if (!user || user.id !== session.user.id) {
+        useAppStore.setState({
+          user: {
+            id: session.user.id as string,
+            email: session.user.email as string,
+            name: session.user.name as string,
+            role: (session.user as any).role || 'TEACHER',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          isAuthenticated: true
+        });
+      }
+    }
+  }, [session, status]);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (status === 'unauthenticated') {
       router.push('/login');
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [status, router]);
 
-  if (isLoading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size="lg" />
@@ -34,7 +52,7 @@ export default function DashboardLayout({
     );
   }
 
-  if (!isAuthenticated) {
+  if (status === 'unauthenticated') {
     return null;
   }
 

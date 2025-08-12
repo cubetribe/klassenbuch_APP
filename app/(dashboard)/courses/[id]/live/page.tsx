@@ -29,8 +29,8 @@ export default function LivePage({ params }: LivePageProps) {
     createBulkEvents
   } = useAppStore();
 
-  const course = courses.find(c => c.id === params.id);
-  const courseStudents = students.filter(s => s.courseId === params.id && s.active);
+  const course = (courses || []).find(c => c.id === params.id);
+  const courseStudents = (students || []).filter(s => s.courseId === params.id && s.active);
 
   useEffect(() => {
     fetchCourses();

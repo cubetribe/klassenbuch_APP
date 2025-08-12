@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppStore } from '@/lib/stores/app-store';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,19 +14,31 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
-  const { login, isLoading } = useAppStore();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
-    const success = await login(email, password);
-    if (success) {
-      router.push('/dashboard');
-    } else {
-      setError('Ungültige Anmeldedaten');
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Ungültige Anmeldedaten');
+      } else if (result?.ok) {
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      setError('Ein Fehler ist aufgetreten');
+    } finally {
+      setIsLoading(false);
     }
   };
 

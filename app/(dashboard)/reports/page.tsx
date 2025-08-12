@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, Download, TrendingUp, Users, Trophy, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
 import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from 'recharts';
 
 const COLORS = {
@@ -44,24 +45,51 @@ export default function ReportsPage() {
   const handleExport = async () => {
     if (!selectedCourse) return;
     setExporting(true);
+    
     try {
-      const endDate = new Date().toISOString().split('T')[0];
-      const startDate = new Date(Date.now() - parseInt(timeRange) * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      await apiClient.reports.generate({
-        courseId: selectedCourse,
-        startDate,
-        endDate,
-        format: 'pdf'
-      });
+      // Generate CSV data
+      const courseData = (courses || []).find(c => c.id === selectedCourse);
+      const courseStudents = (students || []).filter(s => s.courseId === selectedCourse);
+      
+      const csvData = [
+        ['Name', 'Code', 'Aktueller Level', 'Aktuelle XP', 'Aktuelle Farbe', 'Status'],
+        ...courseStudents.map(student => [
+          student.displayName,
+          student.internalCode,
+          student.currentLevel.toString(),
+          student.currentXP.toString(),
+          student.currentColor,
+          student.active ? 'Aktiv' : 'Inaktiv'
+        ])
+      ];
+      
+      // Convert to CSV string
+      const csvContent = csvData.map(row => 
+        row.map(field => `"${field}"`).join(',')
+      ).join('\n');
+      
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${courseData?.name || 'Kurs'}_Report_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Report erfolgreich exportiert');
     } catch (error) {
       console.error('Export failed:', error);
+      toast.error('Export fehlgeschlagen');
     } finally {
       setExporting(false);
     }
   };
 
-  const courseData = courses.find(c => c.id === selectedCourse);
-  const courseStudents = students.filter(s => s.courseId === selectedCourse);
+  const courseData = (courses || []).find(c => c.id === selectedCourse);
+  const courseStudents = (students || []).filter(s => s.courseId === selectedCourse);
 
   // Color distribution data
   const colorDistribution = [
@@ -124,7 +152,7 @@ export default function ReportsPage() {
               <SelectValue placeholder="Kurs auswählen" />
             </SelectTrigger>
             <SelectContent>
-              {courses.map((course) => (
+              {(courses || []).map((course) => (
                 <SelectItem key={course.id} value={course.id}>
                   {course.name} - {course.subject}
                 </SelectItem>

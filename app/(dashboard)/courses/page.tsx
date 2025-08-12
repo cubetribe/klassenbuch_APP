@@ -27,7 +27,7 @@ export default function CoursesPage() {
     fetchCourses();
   }, [fetchCourses]);
 
-  const filteredCourses = courses
+  const filteredCourses = (courses || [])
     .filter(course => showArchived || !course.archived)
     .filter(course => 
       course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -35,7 +35,7 @@ export default function CoursesPage() {
     );
 
   const getCourseStats = (courseId: string) => {
-    const courseStudents = students.filter(s => s.courseId === courseId);
+    const courseStudents = (students || []).filter(s => s.courseId === courseId);
     const avgXP = courseStudents.reduce((sum, s) => sum + s.currentXP, 0) / courseStudents.length || 0;
     return {
       studentCount: courseStudents.length,

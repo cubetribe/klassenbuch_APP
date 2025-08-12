@@ -1,9 +1,7 @@
 "use client";
 
-"use client";
-
-import { useAppStore } from '@/lib/stores';
-import { mockUser } from '@/lib/mock-data';
+import { useAppStore } from '@/lib/stores/app-store';
+import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Menu, Moon, Sun, Bell, User, Settings, HelpCircle, LogOut } from 'lucide-react';
 import { 
@@ -25,6 +23,7 @@ export function Header() {
     boardMode 
   } = useAppStore();
   const { theme, setTheme } = useTheme();
+  const { data: session } = useSession();
 
   if (boardMode) return null;
 
@@ -86,7 +85,7 @@ export function Header() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="flex items-center gap-2">
                 <User className="w-5 h-5" />
-                <span className="hidden md:inline">{mockUser.name}</span>
+                <span className="hidden md:inline">{session?.user?.name || 'User'}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
@@ -109,7 +108,7 @@ export function Header() {
                   Hilfe
                 </DropdownMenuItem>
               </Link>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/login' })}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Abmelden
               </DropdownMenuItem>

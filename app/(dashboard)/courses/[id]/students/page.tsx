@@ -44,8 +44,8 @@ export default function StudentsPage({ params }: StudentsPageProps) {
     fetchStudents(params.id);
   }, [params.id, fetchCourses, fetchStudents]);
 
-  const course = courses.find(c => c.id === params.id);
-  const courseStudents = students.filter(s => s.courseId === params.id);
+  const course = (courses || []).find(c => c.id === params.id);
+  const courseStudents = (students || []).filter(s => s.courseId === params.id);
 
   const filteredStudents = courseStudents.filter(student =>
     student.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -62,20 +62,19 @@ class APIClient {
   // Auth endpoints
   auth = {
     login: async (email: string, password: string) => {
-      const response = await fetch('/api/auth/callback/credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
+      // Use NextAuth signIn
+      const { signIn } = await import('next-auth/react');
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
       });
-      return response.ok;
+      return result?.ok || false;
     },
 
     logout: async () => {
-      await fetch('/api/auth/signout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      const { signOut } = await import('next-auth/react');
+      await signOut({ redirect: false });
     },
 
     register: async (data: {
@@ -91,11 +90,8 @@ class APIClient {
     },
 
     getSession: async () => {
-      const response = await fetch('/api/auth/session', {
-        credentials: 'include',
-      });
-      if (!response.ok) return null;
-      return response.json();
+      const { getSession } = await import('next-auth/react');
+      return getSession();
     },
   };
 

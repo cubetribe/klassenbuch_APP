@@ -34,9 +34,9 @@ export default function StudentsPage() {
 
       {/* Course Selection */}
       <div className="max-w-4xl mx-auto">
-        {courses.length > 0 ? (
+        {(courses || []).length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {courses
+            {(courses || [])
               .filter(course => !course.archived)
               .map((course) => (
                 <Card key={course.id} className="hover:shadow-md transition-shadow cursor-pointer">

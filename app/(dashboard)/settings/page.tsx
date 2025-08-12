@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { useAppStore } from '@/lib/stores';
-import { mockUser } from '@/lib/mock-data';
+import { useAppStore } from '@/lib/stores/app-store';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,11 +30,12 @@ import { useTheme } from 'next-themes';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
+  const { data: session } = useSession();
   const [showPassword, setShowPassword] = useState(false);
   const [settings, setSettings] = useState({
     // Profile
-    name: mockUser.name,
-    email: mockUser.email,
+    name: session?.user?.name || '',
+    email: session?.user?.email || '',
     school: 'Muster Gymnasium',
     subject: 'Mathematik',
     
