@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { StudentGrid } from '@/components/students/student-grid';
 import { QuickActions } from '@/components/behavior/quick-actions';
+import { ColorRating } from '@/components/behavior/color-rating';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -181,9 +182,9 @@ export default function LivePage({ params }: LivePageProps) {
 
       {/* Selection Info */}
       {selectedStudents.length > 0 && (
-        <div className="flex items-center justify-between p-4 bg-primary/10 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-primary/10 dark:bg-primary/20 rounded-lg">
           <div className="flex items-center gap-2">
-            <Badge variant="default">
+            <Badge variant="default" className="bg-primary text-primary-foreground">
               {selectedStudents.length} Schüler ausgewählt
             </Badge>
           </div>
@@ -191,6 +192,7 @@ export default function LivePage({ params }: LivePageProps) {
             variant="outline"
             size="sm"
             onClick={clearSelectedStudents}
+            className="border-primary/20 hover:bg-primary/10"
           >
             Auswahl aufheben
           </Button>
@@ -230,6 +232,9 @@ export default function LivePage({ params }: LivePageProps) {
           </Card>
         )}
       </div>
+
+      {/* Color Rating */}
+      <ColorRating />
 
       {/* Quick Actions */}
       <QuickActions actions={course?.settings?.actions || []} />
