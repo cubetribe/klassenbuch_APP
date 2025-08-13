@@ -25,13 +25,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         id: params.id,
       },
       include: {
-        course: {
-          select: {
-            id: true,
-            name: true,
-            teacherId: true,
-          },
-        },
         applications: {
           orderBy: {
             createdAt: 'desc',
@@ -90,20 +83,14 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       where: {
         id: params.id,
       },
-      include: {
-        course: {
-          select: {
-            teacherId: true,
-          },
-        },
-      },
     });
 
     if (!consequence) {
       throw new NotFoundError('Consequence not found');
     }
 
-    if (consequence.course.teacherId !== session.user.id && session.user.role !== 'ADMIN') {
+    // Only teachers and admins can update school-wide consequences
+    if (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN') {
       throw new ForbiddenError('You do not have permission to update this consequence');
     }
 
@@ -152,20 +139,14 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       where: {
         id: params.id,
       },
-      include: {
-        course: {
-          select: {
-            teacherId: true,
-          },
-        },
-      },
     });
 
     if (!consequence) {
       throw new NotFoundError('Consequence not found');
     }
 
-    if (consequence.course.teacherId !== session.user.id && session.user.role !== 'ADMIN') {
+    // Only teachers and admins can delete school-wide consequences
+    if (session.user.role !== 'TEACHER' && session.user.role !== 'ADMIN') {
       throw new ForbiddenError('You do not have permission to delete this consequence');
     }
 
@@ -189,7 +170,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
           entityId: params.id,
           metadata: {
             name: consequence.name,
-            courseId: consequence.courseId,
           },
         },
       });
