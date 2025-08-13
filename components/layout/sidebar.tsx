@@ -78,7 +78,8 @@ export function Sidebar() {
           <nav className="flex-1 p-4">
             <ul className="space-y-2">
               {navigation.map((item) => {
-                const isActive = pathname === item.href;
+                // Better path matching - check if current path starts with nav item href
+                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                 const Icon = item.icon;
 
                 return (
@@ -88,8 +89,8 @@ export function Sidebar() {
                       className={cn(
                         'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                         isActive
-                          ? 'bg-primary text-white'
-                          : 'text-foreground hover:bg-accent',
+                          ? 'bg-primary/90 text-primary-foreground dark:bg-gray-700 dark:text-white'
+                          : 'text-foreground hover:bg-accent hover:text-accent-foreground',
                         sidebarCollapsed && 'justify-center px-2'
                       )}
                     >

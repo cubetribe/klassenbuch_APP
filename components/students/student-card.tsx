@@ -42,11 +42,11 @@ export function StudentCard({
   return (
     <Card 
       className={cn(
-        'cursor-pointer transition-all duration-200 hover:shadow-md',
+        'cursor-pointer transition-all duration-200 hover:shadow-md relative',
         sizeClasses[size],
         colors.bg,
         colors.text,
-        isSelected && 'ring-2 ring-white ring-offset-2',
+        isSelected && 'ring-2 ring-primary dark:ring-white ring-offset-2 ring-offset-background brightness-110 dark:brightness-125',
         !student.active && 'opacity-50'
       )}
       onClick={handleClick}
@@ -82,7 +82,7 @@ export function StudentCard({
         {/* Selection Indicator */}
         {isSelected && (
           <div className="absolute top-2 right-2">
-            <div className="w-3 h-3 bg-white rounded-full border border-current" />
+            <div className="w-3 h-3 bg-primary dark:bg-white rounded-full border-2 border-background" />
           </div>
         )}
       </div>

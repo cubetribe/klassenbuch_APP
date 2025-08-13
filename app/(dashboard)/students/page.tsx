@@ -1,35 +1,69 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/lib/stores/app-store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { Users, BookOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function StudentsPage() {
-  const { currentCourse, courses, fetchCourses } = useAppStore();
+  const { courses, fetchCourses } = useAppStore();
   const router = useRouter();
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('');
   
   useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
 
   useEffect(() => {
-    // If there's a current course, redirect to its students page
-    if (currentCourse) {
-      router.push(`/courses/${currentCourse.id}/students`);
+    // Auto-select first course if available and nothing selected
+    if (!selectedCourseId && courses && courses.length > 0) {
+      const activeCourses = courses.filter(c => !c.archived);
+      if (activeCourses.length > 0) {
+        setSelectedCourseId(activeCourses[0].id);
+      }
     }
-  }, [currentCourse, router]);
+  }, [courses, selectedCourseId]);
 
-  // If no current course is selected, show course selection
+  const handleCourseChange = (courseId: string) => {
+    setSelectedCourseId(courseId);
+    if (courseId) {
+      router.push(`/courses/${courseId}/students`);
+    }
+  };
+
+  const activeCourses = (courses || []).filter(c => !c.archived);
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Schüler verwalten</h1>
-        <p className="text-muted-foreground">Wählen Sie einen Kurs aus, um Schüler zu verwalten</p>
+      {/* Header with Course Selection */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Schüler verwalten</h1>
+          <p className="text-muted-foreground">Wählen Sie einen Kurs aus, um Schüler zu verwalten</p>
+        </div>
+        
+        {activeCourses.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Label htmlFor="course-select" className="text-sm font-medium">Kurs:</Label>
+            <Select value={selectedCourseId} onValueChange={handleCourseChange}>
+              <SelectTrigger id="course-select" className="w-[250px]">
+                <SelectValue placeholder="Kurs auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {activeCourses.map((course) => (
+                  <SelectItem key={course.id} value={course.id}>
+                    {course.name} - {course.subject}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
 
       {/* Course Selection */}

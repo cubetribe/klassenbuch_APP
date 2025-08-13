@@ -28,12 +28,21 @@ export default function StudentsPage({ params }: StudentsPageProps) {
     fetchStudents,
     createStudent,
     deleteStudent,
+    updateStudent,
     importStudents,
     exportStudents 
   } = useAppStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showViewDialog, setShowViewDialog] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [newStudent, setNewStudent] = useState({
+    displayName: '',
+    internalCode: '',
+    avatarEmoji: '👤'
+  });
+  const [editStudent, setEditStudent] = useState({
     displayName: '',
     internalCode: '',
     avatarEmoji: '👤'
@@ -81,6 +90,45 @@ export default function StudentsPage({ params }: StudentsPageProps) {
     await importStudents(file, params.id);
   };
 
+  const handleViewStudent = (student: Student) => {
+    setSelectedStudent(student);
+    setShowViewDialog(true);
+  };
+
+  const handleEditStudent = (student: Student) => {
+    setSelectedStudent(student);
+    setEditStudent({
+      displayName: student.displayName,
+      internalCode: student.internalCode,
+      avatarEmoji: student.avatarEmoji || '👤'
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateStudent = async () => {
+    if (!selectedStudent) return;
+    
+    const success = await updateStudent(selectedStudent.id, {
+      displayName: editStudent.displayName,
+      avatarEmoji: editStudent.avatarEmoji
+    });
+
+    if (success) {
+      setShowEditDialog(false);
+      setSelectedStudent(null);
+      toast.success('Schüler erfolgreich aktualisiert');
+    }
+  };
+
+  const handleDeleteStudent = async (student: Student) => {
+    if (confirm(`Möchten Sie ${student.displayName} wirklich löschen?`)) {
+      const success = await deleteStudent(student.id);
+      if (success) {
+        toast.success('Schüler erfolgreich gelöscht');
+      }
+    }
+  };
+
   if (!course) {
     return <div>Kurs nicht gefunden</div>;
   }
@@ -95,9 +143,30 @@ export default function StudentsPage({ params }: StudentsPageProps) {
         </div>
         
         <div className="flex gap-2">
-          <Button variant="outline">
-            <Upload className="w-4 h-4 mr-2" />
-            CSV Import
+          <label htmlFor="csv-upload">
+            <input
+              id="csv-upload"
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  handleCSVImport(file);
+                }
+              }}
+            />
+            <Button variant="outline" asChild>
+              <span>
+                <Upload className="w-4 h-4 mr-2" />
+                CSV Import
+              </span>
+            </Button>
+          </label>
+          
+          <Button variant="outline" onClick={handleCSVExport}>
+            <Upload className="w-4 h-4 mr-2 rotate-180" />
+            CSV Export
           </Button>
           
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
@@ -171,6 +240,151 @@ export default function StudentsPage({ params }: StudentsPageProps) {
                   </Button>
                 </div>
               </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Edit Student Dialog */}
+          <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Schüler bearbeiten</DialogTitle>
+                <DialogDescription>
+                  Bearbeiten Sie die Daten von {selectedStudent?.displayName}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Name *</Label>
+                  <Input
+                    id="edit-name"
+                    value={editStudent.displayName}
+                    onChange={(e) => setEditStudent({ ...editStudent, displayName: e.target.value })}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit-emoji">Avatar Emoji</Label>
+                  <Select 
+                    value={editStudent.avatarEmoji} 
+                    onValueChange={(value) => setEditStudent({ ...editStudent, avatarEmoji: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="👤">👤 Standard</SelectItem>
+                      <SelectItem value="👦">👦 Junge</SelectItem>
+                      <SelectItem value="👧">👧 Mädchen</SelectItem>
+                      <SelectItem value="👨">👨 Mann</SelectItem>
+                      <SelectItem value="👩">👩 Frau</SelectItem>
+                      <SelectItem value="😊">😊 Lächeln</SelectItem>
+                      <SelectItem value="🤓">🤓 Streber</SelectItem>
+                      <SelectItem value="😎">😎 Cool</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex gap-2 pt-4">
+                  <Button onClick={handleUpdateStudent} className="flex-1">
+                    Speichern
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowEditDialog(false)}
+                    className="flex-1"
+                  >
+                    Abbrechen
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* View Student Dialog */}
+          <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Schülerdetails</DialogTitle>
+                <DialogDescription>
+                  Detaillierte Informationen zu {selectedStudent?.displayName}
+                </DialogDescription>
+              </DialogHeader>
+              
+              {selectedStudent && (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="text-4xl">{selectedStudent.avatarEmoji || '👤'}</div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-semibold">{selectedStudent.displayName}</h3>
+                      <p className="text-sm text-muted-foreground">Code: {selectedStudent.internalCode}</p>
+                    </div>
+                    <Badge className={`${getColorClasses(selectedStudent.currentColor).bg} ${getColorClasses(selectedStudent.currentColor).text}`}>
+                      {selectedStudent.currentColor === 'blue' && 'Exzellent'}
+                      {selectedStudent.currentColor === 'green' && 'Gut'}
+                      {selectedStudent.currentColor === 'yellow' && 'Warnung'}
+                      {selectedStudent.currentColor === 'red' && 'Kritisch'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Level</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{selectedStudent.currentLevel}</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">XP</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{selectedStudent.currentXP}</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Status</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{selectedStudent.active ? '✅' : '❌'}</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Erstellt</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-sm">{formatDate(selectedStudent.createdAt)}</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        setShowViewDialog(false);
+                        handleEditStudent(selectedStudent);
+                      }}
+                    >
+                      <Edit className="w-4 h-4 mr-2" />
+                      Bearbeiten
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowViewDialog(false)}
+                    >
+                      Schließen
+                    </Button>
+                  </div>
+                </div>
+              )}
             </DialogContent>
           </Dialog>
         </div>
@@ -269,13 +483,29 @@ export default function StudentsPage({ params }: StudentsPageProps) {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleViewStudent(student)}
+                            title="Details anzeigen"
+                          >
                             <Eye className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleEditStudent(student)}
+                            title="Bearbeiten"
+                          >
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteStudent(student)}
+                            title="Löschen"
+                            className="hover:text-red-600"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>

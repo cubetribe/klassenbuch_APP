@@ -1,24 +1,79 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Users, TrendingUp, Plus, Clock } from 'lucide-react';
+import { BookOpen, Users, TrendingUp, Plus, Clock, Activity } from 'lucide-react';
 import Link from 'next/link';
+import { formatDistanceToNow } from 'date-fns';
+import { de } from 'date-fns/locale';
 
 export default function DashboardPage() {
-  const { courses, students, currentCourse, setCurrentCourse } = useAppStore();
+  const { courses, students, events, currentCourse, setCurrentCourse, fetchCourses, fetchStudents, fetchEvents } = useAppStore();
+  const [todaysClasses, setTodaysClasses] = useState(0);
+
+  useEffect(() => {
+    fetchCourses();
+    fetchStudents();
+    fetchEvents();
+  }, [fetchCourses, fetchStudents, fetchEvents]);
 
   const activeCourses = (courses || []).filter(c => !c.archived);
-  const totalStudents = (students || []).length;
-  const avgLevel = (students || []).reduce((sum, s) => sum + s.currentLevel, 0) / (students || []).length || 0;
+  
+  // Calculate real statistics
+  const allStudents = (students || []);
+  const activeStudents = allStudents.filter(s => s.active);
+  const totalStudents = activeStudents.length;
+  const avgLevel = activeStudents.length > 0 
+    ? activeStudents.reduce((sum, s) => sum + s.currentLevel, 0) / activeStudents.length 
+    : 0;
+  
+  // Calculate today's classes (courses with recent activity today)
+  useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todayEvents = (events || []).filter(e => {
+      const eventDate = new Date(e.createdAt);
+      return eventDate >= today;
+    });
+    
+    const uniqueCourses = new Set(todayEvents.map(e => e.courseId));
+    setTodaysClasses(uniqueCourses.size);
+  }, [events]);
 
-  const recentActivities = [
-    { id: '1', text: 'Anna M. erreichte Level 3', time: '2 Min' },
-    { id: '2', text: 'Ben K. erhielt +5 XP', time: '5 Min' },
-    { id: '3', text: 'Clara W. löste Belohnung ein', time: '10 Min' },
-  ];
+  // Get real recent activities from events
+  const recentActivities = (events || [])
+    .slice(0, 5)
+    .map(event => {
+      const student = allStudents.find(s => s.id === event.studentId);
+      let text = '';
+      
+      if (event.type === 'COLOR_CHANGE') {
+        const colorMap = {
+          'BLUE': 'Exzellent',
+          'GREEN': 'Gut', 
+          'YELLOW': 'Warnung',
+          'RED': 'Kritisch'
+        };
+        text = `${student?.displayName || 'Schüler'} wurde als ${colorMap[event.payload?.color] || event.payload?.color} bewertet`;
+      } else if (event.type === 'XP_CHANGE') {
+        const xpChange = event.payload?.xpChange || 0;
+        text = `${student?.displayName || 'Schüler'} erhielt ${xpChange > 0 ? '+' : ''}${xpChange} XP`;
+      } else if (event.type === 'LEVEL_CHANGE') {
+        text = `${student?.displayName || 'Schüler'} erreichte Level ${event.payload?.newLevel || '?'}`;
+      } else {
+        text = `${student?.displayName || 'Schüler'} - ${event.type}`;
+      }
+      
+      return {
+        id: event.id,
+        text,
+        time: formatDistanceToNow(new Date(event.createdAt), { locale: de, addSuffix: true })
+      };
+    });
 
   return (
     <div className="space-y-6">
@@ -72,7 +127,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{avgLevel.toFixed(1)}</div>
             <p className="text-xs text-muted-foreground">
-              +12% seit letztem Monat
+              Alle aktiven Schüler
             </p>
           </CardContent>
         </Card>
@@ -83,9 +138,9 @@ export default function DashboardPage() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
+            <div className="text-2xl font-bold">{todaysClasses}</div>
             <p className="text-xs text-muted-foreground">
-              Stunden geplant
+              {todaysClasses === 1 ? 'Kurs aktiv' : 'Kurse aktiv'}
             </p>
           </CardContent>
         </Card>
@@ -151,14 +206,22 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentActivities.map((activity) => (
-                <div key={activity.id} className="flex items-center justify-between">
-                  <span className="text-sm">{activity.text}</span>
-                  <Badge variant="outline" className="text-xs">
-                    vor {activity.time}
-                  </Badge>
+              {recentActivities.length > 0 ? (
+                recentActivities.map((activity) => (
+                  <div key={activity.id} className="flex items-center justify-between">
+                    <span className="text-sm">{activity.text}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {activity.time}
+                    </Badge>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Activity className="mx-auto h-12 w-12 mb-4" />
+                  <p>Noch keine Aktivitäten</p>
+                  <p className="text-xs mt-1">Bewerten Sie Schüler im Live-Unterricht</p>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
