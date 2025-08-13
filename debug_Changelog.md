@@ -1,14 +1,66 @@
-# Debug Changelog - Version 0.9.2 Production Ready
+# Debug Changelog - Version 9.1.2 
 
-## 🎉 **AKTUELLER STATUS** (Stand: 13. August 2025, 20:00 Uhr)
+## 🚨 **KRITISCHER FEHLER** (Stand: 13. August 2025, 17:45 Uhr)
 
-### ✅ ALLE HAUPTPROBLEME GELÖST!
+### ❌ NICHTS LÄDT MEHR - TOTALER AUSFALL
 
-Die App ist jetzt **PRODUCTION READY** mit Version 0.9.2. Alle kritischen Fehler wurden behoben:
+Nach Deployment der Rewards/Consequences Änderungen lädt die App keine Daten mehr:
+- ❌ **Keine Schüler werden geladen**
+- ❌ **Keine Klassen werden geladen**  
+- ❌ **Kompletter Datenbankzugriff ausgefallen**
+- ❌ **Vermutlich Datenbankverbindung defekt**
 
-- ✅ **404 Fehler behoben** - Alle API Routes funktionieren
-- ✅ **Session Management funktioniert** - Login/Auth läuft stabil
-- ✅ **Schülerverwaltung funktioniert** - CRUD Operationen vollständig
+### Letzte Änderungen vor dem Ausfall (13.08.2025)
+
+#### UI/UX Polish Tasks (Version 9.1.1)
+- ✅ Navigation Highlighting gefixt für Rewards/Consequences
+- ✅ Color Contrast Issues behoben (theme-aware colors)
+- ✅ Hover States vereinheitlicht
+- ✅ Mock Data entfernt aus Reports und Courses Pages
+- ✅ Events API 400 Error gefixt (getAuthSession consistency)
+
+#### Rewards/Consequences System (Version 9.1.2)
+- ✅ Emoji Validation gelockert (.emoji() → .string().min(1).max(10))
+- ✅ EmojiPicker Component erstellt und integriert
+- ⚠️ **KRITISCHE ÄNDERUNG**: Rewards/Consequences von Klassen-spezifisch auf System-weit umgestellt
+  - `app/api/rewards/[id]/route.ts`: Course-Referenzen entfernt (Zeilen 60, 93, 149)
+  - `app/api/consequences/[id]/route.ts`: Course-Referenzen entfernt (Zeilen 60, 93, 149)
+  - Authorization geändert von course.teacherId Check zu role-based (TEACHER/ADMIN)
+
+### Vermutete Fehlerursache
+
+**PROBLEM**: Die GET Methoden in rewards/[id] und consequences/[id] versuchen noch auf `reward.course.teacherId` bzw. `consequence.course.teacherId` zuzugreifen (Zeile 60 in beiden Files), obwohl die course Relation möglicherweise nicht mehr existiert oder nicht mehr geladen wird.
+
+Dies führt zu einem kritischen Fehler beim Laden der Daten, der sich kaskadierend auf die gesamte App auswirkt.
+
+### Deployments heute
+
+```bash
+# Erfolgreiche Deployments
+882c95f Fix: Events API 400 error - consistent getAuthSession usage  
+43c07f1 Fix: Add emoji picker dropdowns for rewards and consequences
+cfb8ad2 Version 9.1.1 - UI/UX improvements and mock data removal
+
+# Letztes (problematisches) Deployment  
+5b48296 Fix: Make rewards and consequences system-wide
+```
+
+### TODO für nächste Session
+
+1. **URGENT**: GET Methoden in rewards/[id] und consequences/[id] fixen
+   - Course includes entfernen oder optional machen
+   - Fehlerhafte Zeile 60 in beiden Files korrigieren
+   
+2. **Datenbank Connection prüfen**
+   - Railway PostgreSQL Status checken
+   - Connection String validieren
+   - Vercel Environment Variables überprüfen
+
+3. **Rollback Option evaluieren**
+   - Auf Commit 43c07f1 zurücksetzen wenn nötig
+   - Rewards/Consequences System-wide Änderungen überdenken
+
+---
 - ✅ **Live-Unterricht funktioniert** - Keine .map() Fehler mehr
 - ✅ **Bewertungssystem implementiert** - Farbbewertung mit XP-System
 - ✅ **Dark/Light Mode gefixt** - Alle Textfarben sichtbar
