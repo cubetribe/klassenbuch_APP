@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+
+import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { handleApiError, UnauthorizedError, NotFoundError, ForbiddenError } from '@/lib/api/errors';
 import { z } from 'zod';
@@ -16,7 +16,7 @@ const reportSchema = z.object({
 // POST /api/reports - Generate a report
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();

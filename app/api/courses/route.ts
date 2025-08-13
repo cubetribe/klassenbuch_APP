@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+
+import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { createCourseSchema } from '@/lib/validations/course';
 import { handleApiError, UnauthorizedError } from '@/lib/api/errors';
@@ -8,7 +8,7 @@ import { handleApiError, UnauthorizedError } from '@/lib/api/errors';
 // GET /api/courses - Get all courses for the authenticated teacher
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
 // POST /api/courses - Create a new course
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();

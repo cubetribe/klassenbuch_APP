@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+
+import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { updateCourseSchema } from '@/lib/validations/course';
 import { handleApiError, UnauthorizedError, NotFoundError, ForbiddenError } from '@/lib/api/errors';
@@ -14,7 +14,7 @@ interface RouteParams {
 // GET /api/courses/[id] - Get a specific course
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PATCH /api/courses/[id] - Update a course
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();
@@ -106,7 +106,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/courses/[id] - Archive/Delete a course
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();

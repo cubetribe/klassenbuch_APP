@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+
+import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { generateStudentCSV } from '@/lib/utils/csv';
 import { handleApiError, UnauthorizedError, ForbiddenError } from '@/lib/api/errors';
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 // GET /api/students/export - Export students to CSV
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();

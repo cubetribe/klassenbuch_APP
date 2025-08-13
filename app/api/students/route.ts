@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { createStudentSchema, studentFilterSchema } from '@/lib/validations/student';
 import { generateStudentCode } from '@/lib/utils/student-code';
@@ -9,17 +8,12 @@ import { handleApiError, UnauthorizedError, ForbiddenError, NotFoundError } from
 // GET /api/students - Get students with optional filters
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 Students API - Starting request');
-    console.log('🔍 Environment:', process.env.NODE_ENV);
-    console.log('🔍 NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
-    
-    const session = await getServerSession(authOptions);
-    console.log('🔍 Session:', session ? 'EXISTS' : 'NULL');
-    console.log('🔍 User ID:', session?.user?.id);
+    // Use the improved session helper
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
-      console.log('❌ No session - throwing UnauthorizedError');
-      throw new UnauthorizedError();
+      console.log('❌ No session found in students API');
+      throw new UnauthorizedError('Please log in to access this resource');
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -112,10 +106,10 @@ export async function GET(request: NextRequest) {
 // POST /api/students - Create a new student
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
-      throw new UnauthorizedError();
+      throw new UnauthorizedError('Please log in to access this resource');
     }
 
     const body = await request.json();

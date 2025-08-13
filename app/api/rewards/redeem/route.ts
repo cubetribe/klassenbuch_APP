@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+
+import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { redeemRewardSchema, bulkRedeemSchema } from '@/lib/validations/reward';
 import { checkRedemptionEligibility, calculateXPAfterRedemption } from '@/lib/utils/redemption-logic';
@@ -10,7 +10,7 @@ import { broadcastRewardRedemption, broadcastStudentUpdate } from '@/lib/sse/bro
 // POST /api/rewards/redeem - Redeem a reward for student(s)
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();

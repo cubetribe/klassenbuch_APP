@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+
+import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { createConsequenceSchema } from '@/lib/validations/consequence';
 import { handleApiError, UnauthorizedError, NotFoundError, ForbiddenError } from '@/lib/api/errors';
@@ -8,7 +8,7 @@ import { handleApiError, UnauthorizedError, NotFoundError, ForbiddenError } from
 // GET /api/consequences - Get consequences with optional course filter
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
 // POST /api/consequences - Create a new consequence
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();

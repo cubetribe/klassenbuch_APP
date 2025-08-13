@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+
+import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { applyConsequenceSchema, bulkApplyConsequenceSchema } from '@/lib/validations/consequence';
 import { handleApiError, UnauthorizedError, ValidationError, ForbiddenError, NotFoundError } from '@/lib/api/errors';
@@ -9,7 +9,7 @@ import { broadcastConsequenceApplication, broadcastStudentUpdate } from '@/lib/s
 // POST /api/consequences/apply - Apply a consequence to student(s)
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();

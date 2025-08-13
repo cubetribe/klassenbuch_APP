@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+
+import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { parseStudentCSV, validateStudentNames } from '@/lib/utils/csv';
 import { generateStudentCode } from '@/lib/utils/student-code';
@@ -15,7 +15,7 @@ const importSchema = z.object({
 // POST /api/students/import - Import students from CSV
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();

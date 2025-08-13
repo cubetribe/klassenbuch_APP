@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/config';
+
+import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { createBehaviorEventSchema, bulkEventSchema, eventFilterSchema } from '@/lib/validations/event';
 import { applyXPChange } from '@/lib/utils/behavior-logic';
@@ -10,7 +10,7 @@ import { broadcastBehaviorEvent, broadcastStudentUpdate } from '@/lib/sse/broadc
 // GET /api/events - Get behavior events with filters
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
 // POST /api/events - Create a behavior event
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       throw new UnauthorizedError();
