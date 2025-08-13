@@ -63,7 +63,8 @@ export class SSEClient extends EventEmitter {
       params.set('courseIds', this.courseIds.join(','));
     }
 
-    const url = `/api/sse?${params.toString()}`;
+    const baseURL = process.env.NEXT_PUBLIC_API_URL || '';
+    const url = `${baseURL}/api/sse?${params.toString()}`;
 
     try {
       this.eventSource = new EventSource(url);
