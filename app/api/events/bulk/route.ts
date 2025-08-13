@@ -17,9 +17,11 @@ const bulkCreateEventsSchema = z.object({
 // POST /api/events/bulk - Create multiple behavior events
 export async function POST(request: NextRequest) {
   try {
-    const session = await getAuthSession(request);
+    // Don't pass request to getAuthSession - it doesn't need it in App Router
+    const session = await getAuthSession();
     
     if (!session?.user?.id) {
+      console.error('No session found in /api/events/bulk');
       throw new UnauthorizedError('Please log in to access this resource');
     }
 
@@ -67,7 +69,7 @@ export async function POST(request: NextRequest) {
           data: {
             studentId: event.studentId,
             courseId: event.courseId,
-            teacherId: session.user.id,
+            createdBy: session.user.id, // Changed from teacherId to createdBy
             type: event.type,
             payload: event.payload,
             notes: event.notes,
