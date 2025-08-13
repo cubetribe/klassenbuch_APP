@@ -65,7 +65,7 @@ export default function NewCoursePage() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className="bg-background rounded-lg shadow-sm border p-6">
         <div className="flex items-center mb-6">
           <BookOpen className="w-8 h-8 text-primary mr-3" />
           <h1 className="text-2xl font-bold">Neuen Kurs erstellen</h1>
@@ -125,7 +125,7 @@ export default function NewCoursePage() {
             <button
               type="submit"
               disabled={isLoading || !formData.name || !formData.subject}
-              className="flex-1 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Erstelle...' : 'Kurs erstellen'}
             </button>

@@ -78,8 +78,29 @@ export function Sidebar() {
           <nav className="flex-1 p-4">
             <ul className="space-y-2">
               {navigation.map((item) => {
-                // Better path matching - check if current path starts with nav item href
-                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                // Advanced path matching - handles redirects and nested routes
+                let isActive = false;
+                
+                // Exact match
+                if (pathname === item.href) {
+                  isActive = true;
+                }
+                // Sub-route match
+                else if (pathname.startsWith(item.href) && (pathname[item.href.length] === '/' || pathname[item.href.length] === undefined)) {
+                  isActive = true;
+                }
+                // Special handling for rewards and consequences that redirect to course-specific pages
+                else if (item.href === '/rewards' && pathname.includes('/rewards')) {
+                  isActive = true;
+                }
+                else if (item.href === '/consequences' && pathname.includes('/consequences')) {
+                  isActive = true;
+                }
+                // Special handling for students page
+                else if (item.href === '/students' && pathname.includes('/students')) {
+                  isActive = true;
+                }
+                
                 const Icon = item.icon;
 
                 return (

@@ -119,12 +119,12 @@ export default function CoursesPage() {
               
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Schuljahr:</span>
+                  <span className="text-muted-foreground">Schuljahr:</span>
                   <Badge variant="outline">{course.schoolYear}</Badge>
                 </div>
                 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Schüler:</span>
+                  <span className="text-muted-foreground">Schüler:</span>
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4" />
                     <span>{stats.studentCount}</span>
@@ -132,12 +132,12 @@ export default function CoursesPage() {
                 </div>
                 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">⌀ XP:</span>
+                  <span className="text-muted-foreground">⌀ XP:</span>
                   <span className="font-medium">{stats.avgXP}</span>
                 </div>
                 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Zuletzt aktiv:</span>
+                  <span className="text-muted-foreground">Zuletzt aktiv:</span>
                   <span className="text-xs">{formatDate(course.updatedAt)}</span>
                 </div>
                 

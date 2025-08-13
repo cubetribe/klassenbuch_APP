@@ -161,7 +161,7 @@ export default function DashboardPage() {
               return (
                 <div
                   key={course.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 ${
+                  className={`p-4 border rounded-lg cursor-pointer hover-card ${
                     isCurrentCourse ? 'border-primary bg-primary/5' : 'border-gray-200'
                   }`}
                   onClick={() => setCurrentCourse(course)}
@@ -169,7 +169,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-medium">{course.name}</h3>
-                      <p className="text-sm text-gray-600">{course.subject}</p>
+                      <p className="text-sm text-muted-foreground">{course.subject}</p>
                     </div>
                     <div className="text-right">
                       <Badge variant="secondary">

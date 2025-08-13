@@ -24,8 +24,8 @@ export default function ConsequencesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Konsequenzen verwalten</h1>
-        <p className="text-gray-600">Wählen Sie einen Kurs aus, um Konsequenzen zu verwalten</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Konsequenzen verwalten</h1>
+        <p className="text-muted-foreground">Wählen Sie einen Kurs aus, um Konsequenzen zu verwalten</p>
       </div>
 
       {/* Course Selection */}
@@ -35,7 +35,7 @@ export default function ConsequencesPage() {
             {(courses || [])
               .filter(course => !course.archived)
               .map((course) => (
-                <Card key={course.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                <Card key={course.id} className="hover-card cursor-pointer">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <BookOpen className="w-5 h-5" />
@@ -45,7 +45,7 @@ export default function ConsequencesPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-muted-foreground">
                         Schuljahr: {course.schoolYear}
                       </div>
                       <Link href={`/courses/${course.id}/consequences`}>
@@ -63,11 +63,11 @@ export default function ConsequencesPage() {
         ) : (
           <Card>
             <CardContent className="text-center py-12">
-              <AlertTriangle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <AlertTriangle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">
                 Keine Kurse vorhanden
               </h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-muted-foreground mb-4">
                 Erstellen Sie zuerst einen Kurs, um Konsequenzen zu verwalten
               </p>
               <Link href="/courses/new">
@@ -82,7 +82,7 @@ export default function ConsequencesPage() {
 
       {/* Quick Navigation */}
       <div className="text-center">
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-muted-foreground mb-4">
           Oder navigieren Sie zurück zum Dashboard
         </p>
         <Link href="/dashboard">

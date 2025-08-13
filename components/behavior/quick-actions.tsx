@@ -60,7 +60,7 @@ export function QuickActions({ actions = [], onActionClick }: QuickActionsProps)
 
   return (
     <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-white rounded-lg shadow-lg border p-4">
+      <div className="bg-background rounded-lg shadow-lg border p-4">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-sm font-medium">
             {selectedStudents.length} Schüler ausgewählt

@@ -138,8 +138,8 @@ export default function StudentsPage({ params }: StudentsPageProps) {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Schüler verwalten</h1>
-          <p className="text-gray-600">{course.name} - {courseStudents.length} Schüler</p>
+          <h1 className="text-3xl font-bold text-foreground">Schüler verwalten</h1>
+          <p className="text-muted-foreground">{course.name} - {courseStudents.length} Schüler</p>
         </div>
         
         <div className="flex gap-2">
@@ -394,7 +394,7 @@ export default function StudentsPage({ params }: StudentsPageProps) {
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1">
           <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Schüler suchen..."
               value={searchTerm}
@@ -406,19 +406,19 @@ export default function StudentsPage({ params }: StudentsPageProps) {
         
         <div className="flex gap-4">
           <div className="text-center">
-            <div className="text-sm text-gray-600">Aktiv</div>
+            <div className="text-sm text-muted-foreground">Aktiv</div>
             <div className="text-2xl font-bold">
               {courseStudents.filter(s => s.active).length}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">⌀ Level</div>
+            <div className="text-sm text-muted-foreground">⌀ Level</div>
             <div className="text-2xl font-bold">
               {(courseStudents.reduce((sum, s) => sum + s.currentLevel, 0) / courseStudents.length || 0).toFixed(1)}
             </div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-600">⌀ XP</div>
+            <div className="text-sm text-muted-foreground">⌀ XP</div>
             <div className="text-2xl font-bold">
               {Math.round(courseStudents.reduce((sum, s) => sum + s.currentXP, 0) / courseStudents.length || 0)}
             </div>
@@ -458,7 +458,7 @@ export default function StudentsPage({ params }: StudentsPageProps) {
                           <div className="text-2xl">{student.avatarEmoji}</div>
                           <div>
                             <div className="font-medium">{student.displayName}</div>
-                            <div className="text-sm text-gray-600">{student.internalCode}</div>
+                            <div className="text-sm text-muted-foreground">{student.internalCode}</div>
                           </div>
                         </div>
                       </TableCell>
@@ -477,7 +477,7 @@ export default function StudentsPage({ params }: StudentsPageProps) {
                         <div className="font-medium">{student.currentXP} XP</div>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-muted-foreground">
                           {formatDate(student.updatedAt)}
                         </div>
                       </TableCell>

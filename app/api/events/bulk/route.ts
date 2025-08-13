@@ -17,8 +17,8 @@ const bulkCreateEventsSchema = z.object({
 // POST /api/events/bulk - Create multiple behavior events
 export async function POST(request: NextRequest) {
   try {
-    // Don't pass request to getAuthSession - it doesn't need it in App Router
-    const session = await getAuthSession();
+    // Pass request for consistency, even though it's optional
+    const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
       console.error('No session found in /api/events/bulk');

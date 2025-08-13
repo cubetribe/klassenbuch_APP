@@ -21,7 +21,7 @@ export default function HomePage() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <LoadingSpinner size="lg" />
-        <p className="mt-4 text-gray-600">Klassenbuch wird geladen...</p>
+        <p className="mt-4 text-muted-foreground">Klassenbuch wird geladen...</p>
       </div>
     </div>
   );

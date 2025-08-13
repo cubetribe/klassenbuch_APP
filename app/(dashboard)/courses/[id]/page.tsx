@@ -70,7 +70,11 @@ export default function CourseDetailPage() {
     setStats({
       studentCount: courseStudents.length,
       avgXP: Math.round(avgXP),
-      activeToday: Math.floor(courseStudents.length * 0.7), // Mock for now
+      activeToday: courseStudents.filter(s => {
+        const lastUpdate = new Date(s.updatedAt);
+        const today = new Date();
+        return lastUpdate.toDateString() === today.toDateString();
+      }).length,
       topPerformer: topStudent
     });
   }, [students, courseId]);

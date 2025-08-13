@@ -1,16 +1,24 @@
 # 📚 Klassenbuch App - Digitale Verhaltenssteuerung für Schulen
 
-![Version](https://img.shields.io/badge/version-0.8.0-blue)
+![Version](https://img.shields.io/badge/version-0.9.2-green)
 ![Next.js](https://img.shields.io/badge/Next.js-13.5.1-black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Status](https://img.shields.io/badge/status-Beta-yellow)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue)
+![License](https://img.shields.io/badge/license-Proprietary-red)
+![Status](https://img.shields.io/badge/status-Production%20Ready-success)
 
 Eine moderne, DSGVO-konforme WebApp zur digitalen Verhaltenssteuerung im Klassenzimmer mit Gamification-Elementen. Entwickelt für deutsche Schulen mit Fokus auf Datenschutz und pädagogische Wirksamkeit.
 
+## 🚀 Live Demo
+
+**Production URL**: [https://klassenbuch-app-3xol.vercel.app](https://klassenbuch-app-3xol.vercel.app)
+
+**Test-Account**:
+- Email: `teacher@school.com`
+- Passwort: `password123`
+
 ## 🎯 Features
 
-### ✅ Implementiert (v0.8.0)
+### ✅ Vollständig Implementiert (v0.9.2)
 - **🔐 Authentifizierung**: Sicheres Login-System mit Session-Management
 - **📚 Kursverwaltung**: Vollständige CRUD-Operationen für Kurse
 - **👥 Schülerverwaltung**: Anonyme Schülerprofile (nur Vornamen)
@@ -23,11 +31,19 @@ Eine moderne, DSGVO-konforme WebApp zur digitalen Verhaltenssteuerung im Klassen
 - **🌓 Dark Mode**: Augenschonender Nachtmodus
 - **📱 Responsive**: Mobile-first Design
 
-### 🚧 In Entwicklung
+### 🎨 Neue Features in v0.9.2
+- **🎨 Farbbewertungssystem**: Blau/Grün/Gelb/Rot mit XP-Integration
+- **📊 Dashboard mit echten Daten**: KPIs und Activities aus der Datenbank
+- **🌓 Verbesserter Dark/Light Mode**: Optimierte Kontraste und Lesbarkeit
+- **🔧 Session Management Fix**: Stabile Authentication in Production
+- **✨ UI/UX Polish**: Konsistente Navigation und Feedback
+
+### 🚧 Geplante Features (v1.0)
 - **📄 PDF-Export**: Berichte als PDF
-- **🔄 Echtzeit-Sync**: Server-Sent Events (SSE)
 - **💾 Cloud-Backup**: Automatische Datensicherung
 - **📸 Avatar-Upload**: Profilbilder für Schüler
+- **📧 Email-Benachrichtigungen**: Automatische Updates
+- **📈 Erweiterte Analytics**: Detaillierte Auswertungen
 
 ## 🚀 Quick Start
 
@@ -65,7 +81,7 @@ Die App läuft auf [http://localhost:3000](http://localhost:3000)
 ### Demo-Login
 ```
 Email: teacher@school.com
-Passwort: demo123
+Passwort: password123
 ```
 
 ## 🏗️ Technologie-Stack
@@ -85,10 +101,10 @@ Passwort: demo123
 - **Validation**: Zod
 
 ### DevOps
-- **Hosting**: Vercel (geplant)
-- **Database**: Vercel Postgres (Production)
+- **Hosting**: Vercel (Production)
+- **Database**: Railway PostgreSQL
 - **Monitoring**: Vercel Analytics
-- **CI/CD**: GitHub Actions
+- **CI/CD**: GitHub Actions (geplant)
 
 ## 📁 Projektstruktur
 
@@ -124,19 +140,23 @@ Die App wurde speziell für deutsche Schulen entwickelt und erfüllt strenge Dat
 
 ## 📊 Entwicklungsstatus
 
-### Version 0.8.0 (Aktuell)
+### Version 0.9.2 (Aktuell - Production Ready)
 - ✅ Vollständige Frontend-Backend Integration
-- ✅ Alle Core-Features implementiert
-- ✅ Demo-Login für Testing
-- ✅ UI/UX poliert und responsive
-- ✅ Null-Safety in allen Components
+- ✅ Alle Core-Features implementiert und getestet
+- ✅ Production Deployment auf Vercel
+- ✅ Railway PostgreSQL Database
+- ✅ Session Management stabilisiert
+- ✅ UI/UX Production Polish abgeschlossen
+- ✅ Dark/Light Mode vollständig funktionsfähig
+- ✅ Farbbewertungssystem mit XP-Integration
 
 ### Roadmap zu v1.0
-- [ ] Production Database Setup (Vercel Postgres)
-- [ ] Performance Optimierung
+- [ ] PDF-Export für Berichte
+- [ ] Avatar-Upload System
 - [ ] E2E Tests mit Playwright
-- [ ] Vollständige Dokumentation
+- [ ] Performance Optimierung (Caching)
 - [ ] Security Audit
+- [ ] Multi-Language Support
 
 ## 🛠️ Entwicklung
 
@@ -209,19 +229,21 @@ Beiträge sind willkommen! Bitte beachte:
 
 ## 📄 Lizenz
 
-Copyright © 2025 Dennis Westermann / aiEX Academy
+Dieses Projekt ist proprietär und nicht zur öffentlichen Nutzung freigegeben.
+Copyright © 2025 Cubetribe / Dennis Westermann
 
 ## 👥 Team
 
-- **Dennis Westermann / aiEX Academy** - Projektleitung & Entwicklung
-- **Claude (AI)** - Entwicklungsunterstützung
+- **Cubetribe** - Entwicklung & Design
+- **Dennis Westermann** - Projektleitung
+- **Claude Code (Anthropic)** - AI-Entwicklungsunterstützung
 
 ## 📞 Support
 
 Bei Fragen oder Problemen:
-- 📧 Email: support@klassenbuch-app.de (coming soon)
+- 📧 Email: support@cubetribe.com
 - 🐛 Issues: [GitHub Issues](https://github.com/cubetribe/klassenbuch_APP/issues)
-- 📖 Docs: [Dokumentation](./docs/) (in Arbeit)
+- 📖 Docs: Siehe [debug_Changelog.md](./debug_Changelog.md) für technische Details
 
 ## 🙏 Danksagungen
 
@@ -232,6 +254,11 @@ Bei Fragen oder Problemen:
 
 ---
 
+**Version**: 0.9.2  
+**Status**: Production Ready  
+**Letztes Update**: 13. August 2025  
+**Live**: [https://klassenbuch-app-3xol.vercel.app](https://klassenbuch-app-3xol.vercel.app)
+
 **Made with ❤️ for German Schools**
 
-*Entwickelt mit Unterstützung von Claude AI (Anthropic)*
+*Entwickelt von Cubetribe mit Unterstützung von Claude Code (Anthropic)*

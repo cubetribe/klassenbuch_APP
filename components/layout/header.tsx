@@ -49,7 +49,7 @@ export function Header() {
                 ? 'bg-yellow-500' 
                 : 'bg-red-500'
             }`} />
-            <span className="text-sm text-gray-600 capitalize">
+            <span className="text-sm text-muted-foreground capitalize">
             <span className="text-sm text-muted-foreground capitalize">
               {realtimeConnection === 'connected' ? 'Online' : 
                realtimeConnection === 'connecting' ? 'Verbinde...' : 'Offline'}

@@ -82,7 +82,7 @@ export function StudentCard({
         {/* Selection Indicator */}
         {isSelected && (
           <div className="absolute top-2 right-2">
-            <div className="w-3 h-3 bg-primary dark:bg-white rounded-full border-2 border-background" />
+            <div className="w-3 h-3 bg-primary dark:bg-background rounded-full border-2 border-background" />
           </div>
         )}
       </div>

@@ -294,7 +294,9 @@ async function handleBulkEvents(body: any, userId: string) {
     throw new NotFoundError('Course not found');
   }
 
-  if (course.teacherId !== userId && (await getServerSession(authOptions))?.user?.role !== 'ADMIN') {
+  if (course.teacherId !== userId) {
+    // For now, only allow course teachers to create bulk events
+    // TODO: Add proper admin role check when needed
     throw new ForbiddenError('You do not have permission to create events for this course');
   }
 

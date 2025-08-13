@@ -179,7 +179,7 @@ export default function HelpPage() {
         <TabsContent value="tutorials" className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
             {tutorials.map((tutorial, index) => (
-              <Card key={index} className="hover:shadow-md transition-shadow cursor-pointer">
+              <Card key={index} className="hover-card cursor-pointer">
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">

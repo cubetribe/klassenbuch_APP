@@ -73,7 +73,7 @@ export default function StudentsPage() {
             {(courses || [])
               .filter(course => !course.archived)
               .map((course) => (
-                <Card key={course.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                <Card key={course.id} className="hover-card cursor-pointer">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <BookOpen className="w-5 h-5" />
@@ -83,7 +83,7 @@ export default function StudentsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-muted-foreground">
                         Schuljahr: {course.schoolYear}
                       </div>
                       <Link href={`/courses/${course.id}/students`}>

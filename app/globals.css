@@ -80,3 +80,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Consistent hover states for interactive elements */
+  .hover-card {
+    @apply transition-all duration-200 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20;
+  }
+  
+  .hover-button {
+    @apply transition-colors duration-200 hover:bg-accent hover:text-accent-foreground;
+  }
+  
+  .hover-link {
+    @apply transition-colors duration-200 hover:text-primary hover:underline;
+  }
+  
+  .hover-row {
+    @apply transition-colors duration-200 hover:bg-accent/50;
+  }
+}
