@@ -180,6 +180,9 @@ export default function LivePage({ params }: LivePageProps) {
         </Card>
       </div>
 
+      {/* Color Rating - NOW ABOVE STUDENTS */}
+      <ColorRating />
+
       {/* Selection Info */}
       {selectedStudents.length > 0 && (
         <div className="flex items-center justify-between p-4 bg-primary/10 dark:bg-primary/20 rounded-lg">
@@ -233,11 +236,10 @@ export default function LivePage({ params }: LivePageProps) {
         )}
       </div>
 
-      {/* Color Rating */}
-      <ColorRating />
-
-      {/* Quick Actions */}
-      <QuickActions actions={course?.settings?.actions || []} />
+      {/* Quick Actions - Optional custom actions from course settings */}
+      {course?.settings?.actions && course.settings.actions.length > 0 && (
+        <QuickActions actions={course.settings.actions} />
+      )}
     </div>
   );
 }

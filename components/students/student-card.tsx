@@ -57,23 +57,23 @@ export function StudentCard({
           {student.avatarEmoji || getInitials(student.displayName)}
         </div>
 
-        {/* Name */}
-        <h3 className="font-medium text-sm mb-1">
+        {/* Name - Fixed for dark/light mode */}
+        <h3 className="font-medium text-sm mb-1 text-foreground">
           {student.displayName}
         </h3>
 
-        {/* Details */}
+        {/* Details - Fixed for dark/light mode */}
         {showDetails && (
-          <div className="flex flex-col gap-1 text-xs opacity-90">
+          <div className="flex flex-col gap-1 text-xs">
             <div className="flex items-center gap-1">
               <Badge 
                 variant="outline" 
-                className={cn("text-xs border-current", colors.text)}
+                className="text-xs border-foreground/50 text-foreground"
               >
                 Level {student.currentLevel}
               </Badge>
             </div>
-            <div>
+            <div className="text-foreground/80">
               {student.currentXP} XP
             </div>
           </div>
