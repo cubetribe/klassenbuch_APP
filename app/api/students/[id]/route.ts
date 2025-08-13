@@ -164,11 +164,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-// PATCH /api/students/[id] - Update a student (alias for PUT)
-export async function PATCH(request: NextRequest, params: RouteParams) {
-  return PUT(request, params);
-}
-
 // DELETE /api/students/[id] - Delete (deactivate) a student
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
