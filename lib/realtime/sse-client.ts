@@ -98,19 +98,26 @@ export class SSEClient extends EventEmitter {
         }
       };
 
-      // Handle errors
+      // Handle errors silently in production
       this.eventSource.onerror = (error) => {
-        console.error('[SSE] Connection error:', error);
+        // Only log in development to avoid console spam
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[SSE] Connection error:', error);
+        }
         this.isConnecting = false;
         
         if (this.eventSource?.readyState === EventSource.CLOSED) {
           this.emit('disconnect');
           this.options.onDisconnect?.();
-          this.scheduleReconnect();
+          // Limit reconnect attempts
+          if (this.reconnectAttempts < 3) {
+            this.scheduleReconnect();
+          }
         }
         
-        this.emit('error', error);
-        this.options.onError?.(new Error(`SSE connection error: ${error.type}`));
+        // Don't emit error event to avoid uncaught errors in console
+        // this.emit('error', error);
+        // this.options.onError?.(new Error(`SSE connection error: ${error.type}`));
       };
     } catch (error) {
       console.error('[SSE] Failed to create EventSource:', error);
