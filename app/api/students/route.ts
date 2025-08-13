@@ -9,9 +9,16 @@ import { handleApiError, UnauthorizedError, ForbiddenError, NotFoundError } from
 // GET /api/students - Get students with optional filters
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 Students API - Starting request');
+    console.log('🔍 Environment:', process.env.NODE_ENV);
+    console.log('🔍 NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+    
     const session = await getServerSession(authOptions);
+    console.log('🔍 Session:', session ? 'EXISTS' : 'NULL');
+    console.log('🔍 User ID:', session?.user?.id);
     
     if (!session?.user?.id) {
+      console.log('❌ No session - throwing UnauthorizedError');
       throw new UnauthorizedError();
     }
 
