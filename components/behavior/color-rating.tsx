@@ -66,24 +66,24 @@ export function ColorRating() {
         const student = students.find(s => s.id === studentId);
         if (!student) return Promise.resolve();
 
-        // Update student color and XP
+        // Update student color and XP - convert to uppercase for API
         const newXP = Math.max(0, (student.currentXP || 0) + rating.xpChange);
         
         return updateStudent(studentId, {
-          currentColor: rating.color,
+          currentColor: rating.color.toUpperCase() as 'BLUE' | 'GREEN' | 'YELLOW' | 'RED',
           currentXP: newXP
         });
       });
 
       await Promise.all(updatePromises);
 
-      // Create behavior events for tracking
+      // Create behavior events for tracking - convert color to uppercase
       const events = selectedStudents.map(studentId => ({
         studentId,
         courseId: currentCourse.id,
         type: 'COLOR_CHANGE',
         payload: { 
-          color: rating.color,
+          color: rating.color.toUpperCase(),
           label: rating.label,
           xpChange: rating.xpChange
         },

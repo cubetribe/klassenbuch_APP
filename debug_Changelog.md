@@ -1,4 +1,4 @@
-# Debug Changelog - Production Session Management Issue
+# Debug Changelog - Version 0.9.0 Pre-Release
 
 ## 📊 **AUSGANGSSITUATION** (Stand: 13. August 2025, 11:00 Uhr)
 

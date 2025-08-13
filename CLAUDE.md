@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Version: 0.8.2 (CRITICAL ISSUES)**
+**Version: 0.9.0 (PRE-RELEASE)**
 
 This is a Next.js 13.5.1 application for classroom behavior management (Klassenbuch App), designed for German schools with strict GDPR compliance. The app tracks student behavior using a gamified color/XP system and is built with production-ready backend integration.
 
