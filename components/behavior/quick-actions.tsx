@@ -10,7 +10,7 @@ interface QuickActionsProps {
   onActionClick?: (action: QuickAction) => void;
 }
 
-export function QuickActions({ actions, onActionClick }: QuickActionsProps) {
+export function QuickActions({ actions = [], onActionClick }: QuickActionsProps) {
   const { 
     selectedStudents, 
     students,
@@ -68,7 +68,7 @@ export function QuickActions({ actions, onActionClick }: QuickActionsProps) {
         </div>
         
         <div className="flex gap-2 flex-wrap">
-          {actions.map((action) => (
+          {(actions || []).map((action) => (
             <Button
               key={action.id}
               variant="outline"

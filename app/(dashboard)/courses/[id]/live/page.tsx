@@ -232,7 +232,7 @@ export default function LivePage({ params }: LivePageProps) {
       </div>
 
       {/* Quick Actions */}
-      <QuickActions actions={course.settings.actions} />
+      <QuickActions actions={course?.settings?.actions || []} />
     </div>
   );
 }
