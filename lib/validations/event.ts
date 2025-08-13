@@ -31,11 +31,11 @@ export const bulkEventSchema = z.object({
 });
 
 export const eventFilterSchema = z.object({
-  studentId: z.string().uuid().optional(),
-  courseId: z.string().uuid().optional(),
-  type: eventTypeSchema.optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
-  limit: z.coerce.number().int().positive().max(100).default(20),
-  offset: z.coerce.number().int().min(0).default(0),
+  studentId: z.string().optional().nullable(),
+  courseId: z.string().optional().nullable(),
+  type: eventTypeSchema.optional().nullable(),
+  startDate: z.string().optional().nullable(),
+  endDate: z.string().optional().nullable(),
+  limit: z.coerce.number().int().positive().max(100).optional().nullable().default(20),
+  offset: z.coerce.number().int().min(0).optional().nullable().default(0),
 });

@@ -7,7 +7,7 @@ export const createStudentSchema = z.object({
     .min(1, 'Display name is required')
     .max(50, 'Display name must be less than 50 characters')
     .regex(/^[a-zA-ZäöüÄÖÜß\s\-\.]+$/, 'Display name contains invalid characters'),
-  avatarEmoji: z.string().emoji().optional(),
+  avatarEmoji: z.string().min(1).max(10).optional(),
 });
 
 export const updateStudentSchema = z.object({
@@ -16,7 +16,7 @@ export const updateStudentSchema = z.object({
     .max(50)
     .regex(/^[a-zA-ZäöüÄÖÜß\s\-\.]+$/, 'Display name contains invalid characters')
     .optional(),
-  avatarEmoji: z.string().emoji().optional().nullable(),
+  avatarEmoji: z.string().min(1).max(10).optional().nullable(),
   active: z.boolean().optional(),
   currentColor: colorSchema.optional(),
   currentLevel: z.number().int().min(0).max(100).optional(),
@@ -30,7 +30,7 @@ export const bulkCreateStudentsSchema = z.object({
       .min(1)
       .max(50)
       .regex(/^[a-zA-ZäöüÄÖÜß\s\-\.]+$/, 'Display name contains invalid characters'),
-    avatarEmoji: z.string().emoji().optional(),
+    avatarEmoji: z.string().min(1).max(10).optional(),
   })).min(1, 'At least one student is required').max(100, 'Maximum 100 students at once'),
 });
 

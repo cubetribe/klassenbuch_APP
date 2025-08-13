@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Plus, AlertTriangle, Edit, Trash2 } from 'lucide-react';
 import { Consequence } from '@/types';
+import { EmojiPicker } from '@/components/ui/emoji-picker';
 
 export default function CourseConsequencesPage() {
   const params = useParams();
@@ -150,10 +151,9 @@ export default function CourseConsequencesPage() {
                   </div>
                   <div>
                     <Label htmlFor="emoji">Emoji</Label>
-                    <Input
-                      id="emoji"
+                    <EmojiPicker
                       value={formData.emoji}
-                      onChange={(e) => setFormData({...formData, emoji: e.target.value})}
+                      onChange={(emoji) => setFormData({...formData, emoji})}
                       placeholder="⚠️"
                     />
                   </div>
@@ -304,10 +304,10 @@ export default function CourseConsequencesPage() {
                 </div>
                 <div>
                   <Label htmlFor="edit-emoji">Emoji</Label>
-                  <Input
-                    id="edit-emoji"
+                  <EmojiPicker
                     value={formData.emoji}
-                    onChange={(e) => setFormData({...formData, emoji: e.target.value})}
+                    onChange={(emoji) => setFormData({...formData, emoji})}
+                    placeholder="⚠️"
                   />
                 </div>
               </div>

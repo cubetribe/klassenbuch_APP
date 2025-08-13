@@ -7,7 +7,7 @@ export const createRewardSchema = z.object({
   costLevel: z.number().int().positive().optional(),
   weeklyLimit: z.number().int().positive().max(10).optional(),
   category: z.string().min(1).max(50),
-  emoji: z.string().emoji().optional(),
+  emoji: z.string().min(1).max(10).optional(),
 }).refine(
   (data) => data.costXP || data.costLevel,
   {
@@ -23,7 +23,7 @@ export const updateRewardSchema = z.object({
   costLevel: z.number().int().positive().optional(),
   weeklyLimit: z.number().int().positive().max(10).optional().nullable(),
   category: z.string().min(1).max(50).optional(),
-  emoji: z.string().emoji().optional().nullable(),
+  emoji: z.string().min(1).max(10).optional().nullable(),
   active: z.boolean().optional(),
 });
 

@@ -6,7 +6,7 @@ export const createConsequenceSchema = z.object({
   description: z.string().max(500).optional(),
   severity: severitySchema,
   notesRequired: z.boolean().default(false),
-  emoji: z.string().emoji().optional(),
+  emoji: z.string().min(1).max(10).optional(),
 });
 
 export const updateConsequenceSchema = z.object({
@@ -14,7 +14,7 @@ export const updateConsequenceSchema = z.object({
   description: z.string().max(500).optional(),
   severity: severitySchema.optional(),
   notesRequired: z.boolean().optional(),
-  emoji: z.string().emoji().optional().nullable(),
+  emoji: z.string().min(1).max(10).optional().nullable(),
   active: z.boolean().optional(),
 });
 

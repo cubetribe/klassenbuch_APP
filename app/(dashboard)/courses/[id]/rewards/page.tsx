@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trophy, Edit, Trash2, Gift } from 'lucide-react';
 import { Reward } from '@/types';
+import { EmojiPicker } from '@/components/ui/emoji-picker';
 
 export default function CourseRewardsPage() {
   const params = useParams();
@@ -143,10 +144,9 @@ export default function CourseRewardsPage() {
                   </div>
                   <div>
                     <Label htmlFor="emoji">Emoji</Label>
-                    <Input
-                      id="emoji"
+                    <EmojiPicker
                       value={formData.emoji}
-                      onChange={(e) => setFormData({...formData, emoji: e.target.value})}
+                      onChange={(emoji) => setFormData({...formData, emoji})}
                       placeholder="🎁"
                     />
                   </div>
@@ -313,10 +313,10 @@ export default function CourseRewardsPage() {
                 </div>
                 <div>
                   <Label htmlFor="edit-emoji">Emoji</Label>
-                  <Input
-                    id="edit-emoji"
+                  <EmojiPicker
                     value={formData.emoji}
-                    onChange={(e) => setFormData({...formData, emoji: e.target.value})}
+                    onChange={(emoji) => setFormData({...formData, emoji})}
+                    placeholder="🎁"
                   />
                 </div>
               </div>
