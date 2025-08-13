@@ -26,12 +26,14 @@ export default function LivePage({ params }: LivePageProps) {
     fetchCourses,
     fetchStudents,
     createEvent,
-    createBulkEvents
+    createBulkEvents,
+    studentsLoading
   } = useAppStore();
 
   const course = (courses || []).find(c => c.id === params.id);
+  // Ensure students is always an array, even if undefined or null
   const courseStudents = Array.isArray(students) 
-    ? students.filter(s => s.courseId === params.id && s.active)
+    ? students.filter(s => s && s.courseId === params.id && s.active)
     : [];
 
   useEffect(() => {
@@ -46,7 +48,34 @@ export default function LivePage({ params }: LivePageProps) {
   }, [course, currentCourse, setCurrentCourse]);
 
   if (!course) {
-    return <div>Kurs nicht gefunden</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Kurs wird geladen...</h2>
+          <p className="text-muted-foreground">Bitte warten Sie einen Moment</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state while students are being fetched
+  if (studentsLoading && !students) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Live Unterricht</h1>
+            <p className="text-muted-foreground">{course.name} - {course.subject}</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <RefreshCw className="mx-auto h-8 w-8 animate-spin text-muted-foreground mb-4" />
+            <p className="text-muted-foreground">Schüler werden geladen...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const stats = {

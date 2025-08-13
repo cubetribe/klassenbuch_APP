@@ -13,16 +13,21 @@ interface BoardPageProps {
 }
 
 export default function BoardPage({ params }: BoardPageProps) {
-  const { courses, students, setBoardMode } = useAppStore();
+  const { courses, students, setBoardMode, fetchCourses, fetchStudents } = useAppStore();
   const [fullscreen, setFullscreen] = useState(false);
   
   const course = (courses || []).find(c => c.id === params.id);
-  const courseStudents = (students || []).filter(s => s.courseId === params.id && s.active);
+  // Ensure students is always an array
+  const courseStudents = Array.isArray(students) 
+    ? students.filter(s => s && s.courseId === params.id && s.active)
+    : [];
 
   useEffect(() => {
     setBoardMode(true);
+    fetchCourses();
+    fetchStudents(params.id);
     return () => setBoardMode(false);
-  }, [setBoardMode]);
+  }, [setBoardMode, fetchCourses, fetchStudents, params.id]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
