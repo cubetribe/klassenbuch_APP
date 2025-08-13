@@ -23,16 +23,22 @@ export function StudentGrid({
 
   return (
     <div className={cn('grid gap-4', gridClasses)}>
-      {students
-        .filter(student => student.active)
-        .map((student) => (
-          <StudentCard
-            key={student.id}
-            student={student}
-            onClick={() => onStudentClick?.(student)}
-            size={size}
-          />
-        ))}
+      {students && students.length > 0 ? (
+        students
+          .filter(student => student.active)
+          .map((student) => (
+            <StudentCard
+              key={student.id}
+              student={student}
+              onClick={() => onStudentClick?.(student)}
+              size={size}
+            />
+          ))
+      ) : (
+        <div className="col-span-full text-center text-muted-foreground py-8">
+          Keine aktiven Schüler gefunden
+        </div>
+      )}
     </div>
   );
 }

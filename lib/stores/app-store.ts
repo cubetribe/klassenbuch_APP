@@ -281,11 +281,11 @@ export const useAppStore = create<AppState>()(
             const data = await dedupe(`students-${courseId}`, () => 
               apiClient.students.list(params)
             );
-            set({ students: data.students, studentsLoading: false });
+            set({ students: data?.students || [], studentsLoading: false });
           } catch (error) {
             console.error('Fetch students error:', error);
             toast.error('Failed to load students');
-            set({ studentsLoading: false });
+            set({ students: [], studentsLoading: false });
           }
         },
         

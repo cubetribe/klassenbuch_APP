@@ -30,7 +30,9 @@ export default function LivePage({ params }: LivePageProps) {
   } = useAppStore();
 
   const course = (courses || []).find(c => c.id === params.id);
-  const courseStudents = (students || []).filter(s => s.courseId === params.id && s.active);
+  const courseStudents = Array.isArray(students) 
+    ? students.filter(s => s.courseId === params.id && s.active)
+    : [];
 
   useEffect(() => {
     fetchCourses();
