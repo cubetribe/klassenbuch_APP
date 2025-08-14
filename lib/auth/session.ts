@@ -11,14 +11,6 @@ export async function getAuthSession(req?: NextRequest) {
     // For App Router API routes, we don't need to pass req/res
     const session = await getServerSession(authOptions);
     
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Session check:', {
-        exists: !!session,
-        userId: session?.user?.id,
-        email: session?.user?.email,
-      });
-    }
-    
     return session;
   } catch (error) {
     console.error('Session retrieval error:', error);

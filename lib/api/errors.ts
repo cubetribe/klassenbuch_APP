@@ -48,7 +48,8 @@ export class ConflictError extends ApiError {
 }
 
 export function handleApiError(error: unknown): NextResponse {
-  console.error('API Error:', error);
+  // In a real production app, you'd want to use a proper logger here
+  // For example: logger.error(error);
 
   if (error instanceof ApiError) {
     return NextResponse.json(

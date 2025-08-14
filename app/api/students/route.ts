@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
     const session = await getAuthSession(request);
     
     if (!session?.user?.id) {
-      console.log('❌ No session found in students API');
       throw new UnauthorizedError('Please log in to access this resource');
     }
 

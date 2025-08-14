@@ -71,7 +71,6 @@ export class SSEClient extends EventEmitter {
 
       // Handle connection open
       this.eventSource.onopen = () => {
-        console.log('[SSE] Connected');
         this.isConnecting = false;
         this.reconnectAttempts = 0;
         this.emit('connect');
@@ -128,27 +127,14 @@ export class SSEClient extends EventEmitter {
 
   // Handle specific message types
   private handleMessage(message: SSEMessage) {
-    switch (message.type) {
-      case 'connection':
-        console.log('[SSE] Connection established:', message.data);
-        break;
-      
-      case 'behavior_event':
-        console.log('[SSE] Behavior event:', message.data);
-        break;
-      
-      case 'student_update':
-        console.log('[SSE] Student update:', message.data);
-        break;
-      
-      case 'reward_redeemed':
-        console.log('[SSE] Reward redeemed:', message.data);
-        break;
-      
-      case 'consequence_applied':
-        console.log('[SSE] Consequence applied:', message.data);
-        break;
-    }
+    // This function is a placeholder for handling specific message types on the client.
+    // Currently, all handling is done via event emissions.
+    // Example:
+    // switch (message.type) {
+    //   case 'student_update':
+    //     // Update a specific student in the UI
+    //     break;
+    // }
   }
 
   // Schedule reconnection attempt
@@ -168,8 +154,6 @@ export class SSEClient extends EventEmitter {
       this.reconnectDelay * Math.pow(1.5, this.reconnectAttempts - 1),
       30000
     );
-
-    console.log(`[SSE] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
 
     this.reconnectTimer = setTimeout(() => {
       this.connect();

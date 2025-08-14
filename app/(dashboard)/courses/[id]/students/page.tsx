@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Plus, Search, Upload, MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
 import { getColorClasses, formatDate, generateId } from '@/lib/utils';
 import { toast } from 'sonner';
+import { AddStudentDialog } from '@/components/students/dialogs/add-student-dialog';
 
 interface StudentsPageProps {
   params: { id: string };
@@ -33,15 +34,9 @@ export default function StudentsPage({ params }: StudentsPageProps) {
     exportStudents 
   } = useAppStore();
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showViewDialog, setShowViewDialog] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [newStudent, setNewStudent] = useState({
-    displayName: '',
-    internalCode: '',
-    avatarEmoji: '👤'
-  });
   const [editStudent, setEditStudent] = useState({
     displayName: '',
     internalCode: '',
@@ -63,25 +58,6 @@ export default function StudentsPage({ params }: StudentsPageProps) {
     student.internalCode.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddStudent = async () => {
-    if (!newStudent.displayName.trim() || !newStudent.internalCode.trim()) {
-      toast.error('Bitte füllen Sie alle Pflichtfelder aus');
-      return;
-    }
-
-    const success = await createStudent({
-      courseId: params.id,
-      displayName: newStudent.displayName,
-      internalCode: newStudent.internalCode,
-      emoji: newStudent.avatarEmoji
-    });
-
-    if (success) {
-      setNewStudent({ displayName: '', internalCode: '', avatarEmoji: '👤' });
-      setShowAddDialog(false);
-    }
-  };
-  
   const handleCSVExport = () => {
     exportStudents(params.id);
   };
@@ -169,79 +145,11 @@ export default function StudentsPage({ params }: StudentsPageProps) {
             CSV Export
           </Button>
           
-          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Schüler hinzufügen
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Neuen Schüler hinzufügen</DialogTitle>
-                <DialogDescription>
-                  Fügen Sie einen neuen Schüler zu {course.name} hinzu.
-                </DialogDescription>
-              </DialogHeader>
-              
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name *</Label>
-                  <Input
-                    id="name"
-                    placeholder="Max Mustermann"
-                    value={newStudent.displayName}
-                    onChange={(e) => setNewStudent({ ...newStudent, displayName: e.target.value })}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="code">Interner Code *</Label>
-                  <Input
-                    id="code"
-                    placeholder="MM2024"
-                    value={newStudent.internalCode}
-                    onChange={(e) => setNewStudent({ ...newStudent, internalCode: e.target.value })}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="emoji">Avatar Emoji</Label>
-                  <Select 
-                    value={newStudent.avatarEmoji} 
-                    onValueChange={(value) => setNewStudent({ ...newStudent, avatarEmoji: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="👤">👤 Standard</SelectItem>
-                      <SelectItem value="👦">👦 Junge</SelectItem>
-                      <SelectItem value="👧">👧 Mädchen</SelectItem>
-                      <SelectItem value="👨">👨 Mann</SelectItem>
-                      <SelectItem value="👩">👩 Frau</SelectItem>
-                      <SelectItem value="😊">😊 Lächeln</SelectItem>
-                      <SelectItem value="🤓">🤓 Streber</SelectItem>
-                      <SelectItem value="😎">😎 Cool</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex gap-2 pt-4">
-                  <Button onClick={handleAddStudent} className="flex-1">
-                    Hinzufügen
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setShowAddDialog(false)}
-                    className="flex-1"
-                  >
-                    Abbrechen
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <AddStudentDialog
+            courseId={params.id}
+            courseName={course.name}
+            createStudent={createStudent}
+          />
 
           {/* Edit Student Dialog */}
           <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
