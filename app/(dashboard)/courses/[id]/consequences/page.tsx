@@ -35,7 +35,7 @@ export default function CourseConsequencesPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    severity: 'minor' as 'minor' | 'moderate' | 'major',
+    severity: 'MINOR' as 'MINOR' | 'MODERATE' | 'MAJOR',
     notesRequired: false,
     emoji: '⚠️'
   });
@@ -51,13 +51,18 @@ export default function CourseConsequencesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Ensure only valid fields are sent for creation/update
     const consequenceData = {
-      ...formData,
-      courseId,
-      active: true,
+      name: formData.name,
+      description: formData.description,
+      severity: formData.severity,
+      notesRequired: formData.notesRequired,
+      emoji: formData.emoji,
+      // 'active' field is handled by the backend/schema default
     };
 
     if (editingConsequence) {
+      // For updates, we might send different data, but for now this is fine
       await updateConsequence(editingConsequence.id, consequenceData);
       setEditingConsequence(null);
     } else {
@@ -69,7 +74,7 @@ export default function CourseConsequencesPage() {
     setFormData({
       name: '',
       description: '',
-      severity: 'minor',
+      severity: 'MINOR',
       notesRequired: false,
       emoji: '⚠️'
     });
@@ -93,7 +98,7 @@ export default function CourseConsequencesPage() {
   };
 
   const getSeverityColor = (severity: string) => {
-    switch (severity) {
+    switch (severity.toLowerCase()) {
       case 'minor': return 'bg-yellow-100 text-yellow-800';
       case 'moderate': return 'bg-orange-100 text-orange-800';
       case 'major': return 'bg-red-100 text-red-800';
@@ -102,7 +107,7 @@ export default function CourseConsequencesPage() {
   };
 
   const getSeverityLabel = (severity: string) => {
-    switch (severity) {
+    switch (severity.toLowerCase()) {
       case 'minor': return 'Gering';
       case 'moderate': return 'Mittel';
       case 'major': return 'Schwer';
@@ -175,9 +180,9 @@ export default function CourseConsequencesPage() {
                       <SelectValue placeholder="Schweregrad wählen" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="minor">Gering</SelectItem>
-                      <SelectItem value="moderate">Mittel</SelectItem>
-                      <SelectItem value="major">Schwer</SelectItem>
+                    <SelectItem value="MINOR">Gering</SelectItem>
+                    <SelectItem value="MODERATE">Mittel</SelectItem>
+                    <SelectItem value="MAJOR">Schwer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -328,9 +333,9 @@ export default function CourseConsequencesPage() {
                     <SelectValue placeholder="Schweregrad wählen" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="minor">Gering</SelectItem>
-                    <SelectItem value="moderate">Mittel</SelectItem>
-                    <SelectItem value="major">Schwer</SelectItem>
+                    <SelectItem value="MINOR">Gering</SelectItem>
+                    <SelectItem value="MODERATE">Mittel</SelectItem>
+                    <SelectItem value="MAJOR">Schwer</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

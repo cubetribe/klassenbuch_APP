@@ -88,14 +88,7 @@ export async function POST(request: NextRequest) {
     // Create consequence with audit log
     const consequence = await prisma.$transaction(async (tx) => {
       const newConsequence = await tx.consequence.create({
-        data: {
-          name: validatedData.name!,
-          description: validatedData.description,
-          emoji: validatedData.emoji,
-          severity: validatedData.severity || 'MINOR',
-          notesRequired: validatedData.notesRequired || false,
-          active: true,
-        },
+        data: validatedData,
       });
 
       // Create audit log

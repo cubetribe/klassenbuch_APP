@@ -50,15 +50,27 @@ export async function GET(request: NextRequest) {
       }
 
       where.courseId = filters.courseId;
-    } else {
-      // Get events from user's courses only
+    } else if (session.user.role !== 'ADMIN') {
+      // Non-admins can only see events from their courses
       const courses = await prisma.course.findMany({
         where: { teacherId: session.user.id },
         select: { id: true },
       });
+
+      if (courses.length === 0) {
+        // If user has no courses, return empty result to avoid issues
+        return NextResponse.json({
+          events: [],
+          totalCount: 0,
+          limit: filters.limit,
+          offset: filters.offset,
+          hasMore: false,
+        });
+      }
       
       where.courseId = { in: courses.map(c => c.id) };
     }
+    // If user is an admin and no courseId is specified, the where clause remains open, fetching all events.
 
     if (filters.type) {
       where.type = filters.type;
