@@ -86,37 +86,44 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const [events, totalCount] = await Promise.all([
-      prisma.behaviorEvent.findMany({
-        where,
-        include: {
-          student: {
-            select: {
-              displayName: true,
-              internalCode: true,
-              avatarEmoji: true,
-            },
-          },
-          course: {
-            select: {
-              name: true,
-              subject: true,
-            },
-          },
-          creator: {
-            select: {
-              name: true,
-            },
+    const totalCount = await prisma.behaviorEvent.count({ where });
+
+    const eventsData = await prisma.behaviorEvent.findMany({
+      where,
+      include: {
+        student: {
+          select: {
+            displayName: true,
+            internalCode: true,
+            avatarEmoji: true,
           },
         },
-        orderBy: {
-          createdAt: 'desc',
+        course: {
+          select: {
+            name: true,
+            subject: true,
+          },
         },
-        take: filters.limit,
-        skip: filters.offset,
-      }),
-      prisma.behaviorEvent.count({ where }),
-    ]);
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: filters.limit,
+      skip: filters.offset,
+    });
+
+    // Resiliently fetch creators to prevent crashes from orphaned data
+    const creatorIds = [...new Set(eventsData.map(event => event.createdBy))];
+    const creators = await prisma.user.findMany({
+      where: { id: { in: creatorIds } },
+      select: { id: true, name: true },
+    });
+    const creatorMap = new Map(creators.map(c => [c.id, c.name]));
+
+    const events = eventsData.map(event => ({
+      ...event,
+      creator: { name: creatorMap.get(event.createdBy) || 'Unbekannter Benutzer' },
+    }));
 
     return NextResponse.json({
       events,
