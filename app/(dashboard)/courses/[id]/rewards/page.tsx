@@ -52,17 +52,26 @@ export default function CourseRewardsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Ensure at least costXP is set to a positive number if neither is specified
-    const costXP = formData.costXP > 0 ? formData.costXP : 10; // Default to 10 XP if not specified
-    
-    const rewardData = {
-      ...formData,
-      courseId,
-      active: true,
-      costXP,
-      weeklyLimit: formData.weeklyLimit > 0 ? formData.weeklyLimit : undefined,
-      category: formData.category || 'Sonstiges', // Ensure category is not empty
+    // Build a clean data object based on the validation schema
+    const rewardData: any = {
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+      emoji: formData.emoji,
     };
+
+    // Handle optional costs, respecting the schema (must be positive)
+    if (formData.costXP > 0) {
+      rewardData.costXP = formData.costXP;
+    }
+    if (formData.costLevel > 0) {
+      rewardData.costLevel = formData.costLevel;
+    }
+
+    // Handle optional weekly limit
+    if (formData.weeklyLimit > 0) {
+      rewardData.weeklyLimit = formData.weeklyLimit;
+    }
 
     if (editingReward) {
       await updateReward(editingReward.id, rewardData);
