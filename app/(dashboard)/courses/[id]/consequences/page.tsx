@@ -35,7 +35,7 @@ export default function CourseConsequencesPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    severity: 'minor' as 'minor' | 'moderate' | 'major',
+    severity: 'MINOR' as 'MINOR' | 'MODERATE' | 'MAJOR',
     notesRequired: false,
     emoji: '⚠️'
   });
@@ -175,9 +175,9 @@ export default function CourseConsequencesPage() {
                       <SelectValue placeholder="Schweregrad wählen" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="minor">Gering</SelectItem>
-                      <SelectItem value="moderate">Mittel</SelectItem>
-                      <SelectItem value="major">Schwer</SelectItem>
+                      <SelectItem value="MINOR">Gering</SelectItem>
+                      <SelectItem value="MODERATE">Mittel</SelectItem>
+                      <SelectItem value="MAJOR">Schwer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -328,9 +328,9 @@ export default function CourseConsequencesPage() {
                     <SelectValue placeholder="Schweregrad wählen" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="minor">Gering</SelectItem>
-                    <SelectItem value="moderate">Mittel</SelectItem>
-                    <SelectItem value="major">Schwer</SelectItem>
+                    <SelectItem value="MINOR">Gering</SelectItem>
+                    <SelectItem value="MODERATE">Mittel</SelectItem>
+                    <SelectItem value="MAJOR">Schwer</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -9,14 +9,11 @@ declare global {
 // Determine the database URL based on the environment.
 // In production (on Vercel), `POSTGRES_PRISMA_URL` is used for the connection pool.
 // In development, `DATABASE_URL` from the `.env` file is used.
-const databaseUrl =
-  process.env.NODE_ENV === 'production'
-    ? process.env.POSTGRES_PRISMA_URL
-    : process.env.DATABASE_URL;
+const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
   throw new Error(
-    'Database URL is not set. Please check your environment variables for POSTGRES_PRISMA_URL (production) or DATABASE_URL (development).'
+    'DATABASE_URL is not set. Please check your environment variables.'
   );
 }
 

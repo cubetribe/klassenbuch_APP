@@ -52,16 +52,20 @@ export default function CourseRewardsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Ensure at least costXP is set to a positive number if neither is specified
-    const costXP = formData.costXP > 0 ? formData.costXP : 10; // Default to 10 XP if not specified
+    if (formData.costXP <= 0 && formData.costLevel <= 0) {
+      toast.error('Entweder "XP Kosten" oder "Level Kosten" muss größer als 0 sein.');
+      return;
+    }
     
     const rewardData = {
-      ...formData,
-      courseId,
-      active: true,
-      costXP,
+      name: formData.name,
+      description: formData.description,
+      costXP: formData.costXP > 0 ? formData.costXP : undefined,
+      costLevel: formData.costLevel > 0 ? formData.costLevel : undefined,
       weeklyLimit: formData.weeklyLimit > 0 ? formData.weeklyLimit : undefined,
-      category: formData.category || 'Sonstiges', // Ensure category is not empty
+      category: formData.category || 'Sonstiges',
+      emoji: formData.emoji,
+      active: true,
     };
 
     if (editingReward) {
@@ -169,15 +173,30 @@ export default function CourseRewardsPage() {
                       type="number"
                       value={formData.costXP}
                       onChange={(e) => setFormData({...formData, costXP: parseInt(e.target.value) || 0})}
+                      min="0"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="weeklyLimit">Wöchentliches Limit</Label>
+                    <Label htmlFor="costLevel">Level Kosten</Label>
+                    <Input
+                      id="costLevel"
+                      type="number"
+                      value={formData.costLevel}
+                      onChange={(e) => setFormData({...formData, costLevel: parseInt(e.target.value) || 0})}
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1">
+                  <div>
+                    <Label htmlFor="weeklyLimit">Wöchentliches Limit (0 für unbegrenzt)</Label>
                     <Input
                       id="weeklyLimit"
                       type="number"
                       value={formData.weeklyLimit}
                       onChange={(e) => setFormData({...formData, weeklyLimit: parseInt(e.target.value) || 0})}
+                      min="0"
                     />
                   </div>
                 </div>
@@ -338,15 +357,29 @@ export default function CourseRewardsPage() {
                     type="number"
                     value={formData.costXP}
                     onChange={(e) => setFormData({...formData, costXP: parseInt(e.target.value) || 0})}
+                    min="0"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="edit-weeklyLimit">Wöchentliches Limit</Label>
+                  <Label htmlFor="edit-costLevel">Level Kosten</Label>
+                  <Input
+                    id="edit-costLevel"
+                    type="number"
+                    value={formData.costLevel}
+                    onChange={(e) => setFormData({...formData, costLevel: parseInt(e.target.value) || 0})}
+                    min="0"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1">
+                <div>
+                  <Label htmlFor="edit-weeklyLimit">Wöchentliches Limit (0 für unbegrenzt)</Label>
                   <Input
                     id="edit-weeklyLimit"
                     type="number"
                     value={formData.weeklyLimit}
                     onChange={(e) => setFormData({...formData, weeklyLimit: parseInt(e.target.value) || 0})}
+                    min="0"
                   />
                 </div>
               </div>
