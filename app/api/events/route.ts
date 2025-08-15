@@ -91,11 +91,6 @@ export async function GET(request: NextRequest) {
               subject: true,
             },
           },
-          creator: {
-            select: {
-              name: true,
-            },
-          },
         },
         orderBy: {
           createdAt: 'desc',

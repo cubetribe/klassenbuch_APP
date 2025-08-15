@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAppStore } from '@/lib/stores/app-store';
 import apiClient from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
@@ -43,46 +43,28 @@ export default function ReportsPage() {
   }, [selectedCourse, timeRange, fetchCourses, fetchStudents, fetchEvents]);
   
   const handleExport = async () => {
-    if (!selectedCourse) return;
+    if (!selectedCourse) {
+      toast.info('Bitte wählen Sie zuerst einen Kurs aus.');
+      return;
+    }
     setExporting(true);
     
     try {
-      // Generate CSV data
-      const courseData = (courses || []).find(c => c.id === selectedCourse);
-      const courseStudents = (students || []).filter(s => s.courseId === selectedCourse);
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - (parseInt(timeRange) - 1));
       
-      const csvData = [
-        ['Name', 'Code', 'Aktueller Level', 'Aktuelle XP', 'Aktuelle Farbe', 'Status'],
-        ...courseStudents.map(student => [
-          student.displayName,
-          student.internalCode,
-          student.currentLevel.toString(),
-          student.currentXP.toString(),
-          student.currentColor,
-          student.active ? 'Aktiv' : 'Inaktiv'
-        ])
-      ];
+      await apiClient.reports.generate({
+        courseId: selectedCourse,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        format: 'csv',
+      });
       
-      // Convert to CSV string
-      const csvContent = csvData.map(row => 
-        row.map(field => `"${field}"`).join(',')
-      ).join('\n');
-      
-      // Create and download file
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `${courseData?.name || 'Kurs'}_Report_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast.success('Report erfolgreich exportiert');
+      toast.success('Report wird heruntergeladen...');
     } catch (error) {
       console.error('Export failed:', error);
-      toast.error('Export fehlgeschlagen');
+      toast.error('Export fehlgeschlagen. Bitte versuchen Sie es später erneut.');
     } finally {
       setExporting(false);
     }
@@ -99,14 +81,36 @@ export default function ReportsPage() {
     { name: 'Kritisch', value: courseStudents.filter(s => s.currentColor === 'red').length, color: COLORS.red },
   ].filter(item => item.value > 0);
 
-  // Calculate trend data from recent events
-  const trendData = courseStudents.length > 0 ? [
-    { date: 'Woche 1', avgXP: Math.round(courseStudents.reduce((sum, s) => sum + s.currentXP, 0) / courseStudents.length * 0.6), avgLevel: 1.0 },
-    { date: 'Woche 2', avgXP: Math.round(courseStudents.reduce((sum, s) => sum + s.currentXP, 0) / courseStudents.length * 0.7), avgLevel: 1.2 },
-    { date: 'Woche 3', avgXP: Math.round(courseStudents.reduce((sum, s) => sum + s.currentXP, 0) / courseStudents.length * 0.85), avgLevel: 1.5 },
-    { date: 'Woche 4', avgXP: Math.round(courseStudents.reduce((sum, s) => sum + s.currentXP, 0) / courseStudents.length * 0.95), avgLevel: 1.8 },
-    { date: 'Aktuell', avgXP: Math.round(courseStudents.reduce((sum, s) => sum + s.currentXP, 0) / courseStudents.length), avgLevel: courseStudents.reduce((sum, s) => sum + s.currentLevel, 0) / courseStudents.length },
-  ] : [];
+  // Calculate trend data from events
+  const trendData = useMemo(() => {
+    if (!events || events.length === 0) return [];
+
+    const dailyChanges = new Map<string, number>();
+    const numDays = parseInt(timeRange);
+
+    // Initialize map with all days in the range
+    for (let i = 0; i < numDays; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      dailyChanges.set(d.toISOString().split('T')[0], 0);
+    }
+
+    // Aggregate XP changes from events
+    for (const event of events) {
+      const xpChange = (event.payload as any)?.xpChange;
+      if (typeof xpChange === 'number') {
+        const date = new Date(event.createdAt).toISOString().split('T')[0];
+        if (dailyChanges.has(date)) {
+          dailyChanges.set(date, (dailyChanges.get(date) ?? 0) + xpChange);
+        }
+      }
+    }
+
+    // Convert map to array and sort by date
+    return Array.from(dailyChanges.entries())
+      .map(([date, xpChange]) => ({ date, xpChange }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [events, timeRange]);
 
   // Level distribution
   const levelDistribution = [
@@ -278,31 +282,22 @@ export default function ReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Entwicklung über Zeit</CardTitle>
-              <CardDescription>Durchschnittliche XP und Level-Entwicklung</CardDescription>
+              <CardDescription>Tägliche XP-Veränderungen im Kurs</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
                 <LineChart data={trendData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
+                  <YAxis />
                   <Tooltip />
                   <Line
-                    yAxisId="left"
                     type="monotone"
-                    dataKey="avgXP"
+                    dataKey="xpChange"
                     stroke="#3B82F6"
                     strokeWidth={2}
-                    name="⌀ XP"
-                  />
-                  <Line
-                    yAxisId="right"
-                    type="monotone"
-                    dataKey="avgLevel"
-                    stroke="#10B981"
-                    strokeWidth={2}
-                    name="⌀ Level"
+                    name="Tägliche XP Änderung"
+                    dot={false}
                   />
                 </LineChart>
               </ResponsiveContainer>
