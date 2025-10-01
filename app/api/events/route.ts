@@ -56,7 +56,18 @@ export async function GET(request: NextRequest) {
         where: { teacherId: session.user.id },
         select: { id: true },
       });
-      
+
+      // Handle case where user has no courses
+      if (courses.length === 0) {
+        return NextResponse.json({
+          events: [],
+          totalCount: 0,
+          limit: filters.limit,
+          offset: filters.offset,
+          hasMore: false,
+        });
+      }
+
       where.courseId = { in: courses.map(c => c.id) };
     }
 

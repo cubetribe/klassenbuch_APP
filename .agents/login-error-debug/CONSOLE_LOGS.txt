@@ -1,0 +1,73 @@
+========================================
+BROWSER CONSOLE LOGS - POST LOGIN ERRORS
+========================================
+URL: https://klassenbuch-app.vercel.app/dashboard
+User: office@cubetribe.de (Lisa Müller)
+Timestamp: 2025-10-01
+Browser: Chromium (Playwright)
+========================================
+
+[VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o
+@ https://klassenbuch-app.vercel.app/login:0
+DETAILS: Warning about password input missing autocomplete attribute
+
+----------------------------------------
+
+[ERROR] Failed to load resource: the server responded with a status of 404 ()
+@ https://klassenbuch-app.vercel.app/favicon.ico:0
+DETAILS: Missing favicon (cosmetic issue, not related to login error)
+
+----------------------------------------
+
+[ERROR] Failed to load resource: the server responded with a status of 500 ()
+@ https://klassenbuch-app.vercel.app/api/events:0
+DETAILS: CRITICAL - /api/events endpoint returning 500 Internal Server Error
+STATUS CODE: 500
+REQUEST: GET /api/events
+RESPONSE: { "error": "Internal server error" }
+
+----------------------------------------
+
+[ERROR] Fetch events error: APIError: Request failed
+    at Object.request (https://klassenbuch-app.vercel.app/_next/static/chunks/app/(auth)/login/page-73d1b2dcd20dc9b1.js:1:12853)
+    at async fetchEvents (https://klassenbuch-app.vercel.app/_next/static/chunks/9036-9792dda282f0d9ba.js:1:10204)
+@ https://klassenbuch-app.vercel.app/_next/static/chunks/7864-7559a9af9afc48c5.js:0
+
+STACK TRACE:
+  1. Object.request (app/(auth)/login/page-73d1b2dcd20dc9b1.js:1:12853)
+  2. async fetchEvents (9036-9792dda282f0d9ba.js:1:10204)
+
+DETAILS:
+- Frontend API client catches 500 error from /api/events
+- Wraps it in APIError: Request failed
+- This error bubbles up to UI, showing:
+  - "Offline" status in header
+  - Toast notification: "Failed to load events"
+
+========================================
+ERROR ANALYSIS
+========================================
+
+PRIMARY ERROR: /api/events returns 500 Internal Server Error
+
+ROOT CAUSE: Backend crashes when user has no courses
+- Code tries to filter events by courseIds
+- When courseIds array is empty: { in: [] }
+- Prisma rejects empty array in "in" operator
+- Unhandled exception → 500 error
+
+IMPACT:
+- Dashboard partially loads
+- Shows "Offline" status (misleading)
+- User sees "Failed to load events" toast
+- Cannot use Live Teaching feature
+- Cannot view Reports
+
+AFFECTED USERS:
+- ALL new users with no courses
+- ANY user whose courses are not associated with their account
+- Users who deleted all their courses
+
+========================================
+END OF CONSOLE LOGS
+========================================

@@ -1,0 +1,313 @@
+{
+  "summary": {
+    "total_requests": 55,
+    "successful_requests": 54,
+    "failed_requests": 1,
+    "critical_failure": "/api/events → 500"
+  },
+  "timeline": [
+    {
+      "sequence": 1,
+      "phase": "Login Page Load",
+      "requests": [
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/login",
+          "status": 200,
+          "type": "document"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/_next/static/css/7f1b9b9ce7dc6700.css",
+          "status": 200,
+          "type": "stylesheet"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/_next/static/chunks/webpack-fd9fa4aa90c3d6ab.js",
+          "status": 200,
+          "type": "script"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/_next/static/chunks/main-app-298ad2dd1270aebf.js",
+          "status": 200,
+          "type": "script"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/api/auth/session",
+          "status": 200,
+          "type": "fetch",
+          "response": {
+            "authenticated": false
+          }
+        }
+      ]
+    },
+    {
+      "sequence": 2,
+      "phase": "Authentication",
+      "requests": [
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/api/auth/providers",
+          "status": 200,
+          "type": "fetch"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/api/auth/csrf",
+          "status": 200,
+          "type": "fetch",
+          "note": "CSRF token retrieved for login"
+        },
+        {
+          "method": "POST",
+          "url": "https://klassenbuch-app.vercel.app/api/auth/callback/credentials",
+          "status": 200,
+          "type": "fetch",
+          "payload": {
+            "email": "office@cubetribe.de",
+            "password": "***REDACTED***"
+          },
+          "note": "LOGIN SUCCESSFUL - Authentication passed"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/api/auth/session",
+          "status": 200,
+          "type": "fetch",
+          "response": {
+            "authenticated": true,
+            "user": {
+              "id": "USER_ID",
+              "email": "office@cubetribe.de",
+              "name": "Lisa Müller"
+            }
+          },
+          "note": "Session established successfully"
+        }
+      ]
+    },
+    {
+      "sequence": 3,
+      "phase": "Dashboard Load (RSC)",
+      "requests": [
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/dashboard?_rsc=btnud",
+          "status": 200,
+          "type": "fetch",
+          "note": "Next.js RSC (React Server Component) request"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/_next/static/chunks/2963-cf2effd21915a77c.js",
+          "status": 200,
+          "type": "script"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/_next/static/chunks/app/(dashboard)/layout-4785ce0cad8d03da.js",
+          "status": 200,
+          "type": "script"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/_next/static/chunks/app/(dashboard)/dashboard/page-662ae9ab8b92c18b.js",
+          "status": 200,
+          "type": "script",
+          "note": "Dashboard page JavaScript loaded"
+        }
+      ]
+    },
+    {
+      "sequence": 4,
+      "phase": "API Data Fetching",
+      "requests": [
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/api/courses",
+          "status": 200,
+          "type": "fetch",
+          "response": {
+            "courses": [
+              {
+                "id": "COURSE_ID",
+                "name": "Klasse 7a",
+                "subject": "Mathematik"
+              }
+            ],
+            "totalCount": 1
+          },
+          "note": "✅ Returns 1 course"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/api/students",
+          "status": 200,
+          "type": "fetch",
+          "response": {
+            "students": [
+              {
+                "id": "STUDENT_ID",
+                "displayName": "Student Name",
+                "avatarEmoji": "👤"
+              }
+            ],
+            "totalCount": 1
+          },
+          "note": "✅ Returns 1 student"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/api/events",
+          "status": 500,
+          "type": "fetch",
+          "response": {
+            "error": "Internal server error"
+          },
+          "note": "❌ CRITICAL FAILURE - This is the bug"
+        }
+      ]
+    },
+    {
+      "sequence": 5,
+      "phase": "Route Prefetching (Next.js)",
+      "requests": [
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/courses?_rsc=76l7k",
+          "status": 200,
+          "type": "fetch",
+          "note": "Prefetch for navigation"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/students?_rsc=76l7k",
+          "status": 200,
+          "type": "fetch"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/rewards?_rsc=76l7k",
+          "status": 200,
+          "type": "fetch"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/consequences?_rsc=76l7k",
+          "status": 200,
+          "type": "fetch"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/reports?_rsc=76l7k",
+          "status": 200,
+          "type": "fetch"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/settings?_rsc=76l7k",
+          "status": 200,
+          "type": "fetch"
+        },
+        {
+          "method": "GET",
+          "url": "https://klassenbuch-app.vercel.app/courses/new?_rsc=76l7k",
+          "status": 200,
+          "type": "fetch"
+        }
+      ]
+    }
+  ],
+  "error_details": {
+    "failed_request": {
+      "method": "GET",
+      "url": "/api/events",
+      "status": 500,
+      "response_body": {
+        "error": "Internal server error"
+      },
+      "response_headers": {
+        "content-type": "application/json"
+      },
+      "triggered_by": "Dashboard component mount",
+      "code_location": "fetchEvents() in dashboard/page.tsx"
+    },
+    "root_cause": {
+      "file": "/app/api/events/route.ts",
+      "line": 60,
+      "code": "where.courseId = { in: courses.map(c => c.id) };",
+      "problem": "When courses array is empty, Prisma rejects { in: [] }",
+      "explanation": "The user appears to have courses in the database (dashboard shows '1 Active Course'), but the teacherId doesn't match session.user.id, so the query returns 0 courses."
+    },
+    "downstream_effects": [
+      {
+        "component": "Header",
+        "effect": "Shows 'Offline' status (red indicator)"
+      },
+      {
+        "component": "Toast",
+        "effect": "Displays 'Failed to load events' notification"
+      },
+      {
+        "component": "Dashboard Activities",
+        "effect": "Shows 'Noch keine Aktivitäten' (empty state)"
+      },
+      {
+        "component": "Live Teaching",
+        "effect": "Won't work without events data"
+      }
+    ]
+  },
+  "data_consistency_issue": {
+    "observation": "Dashboard shows '1 Active Course' but /api/events finds 0 courses",
+    "possible_causes": [
+      "Course.teacherId doesn't match session.user.id",
+      "Database seeding created course with wrong teacherId",
+      "User ID mismatch between session and database",
+      "Course belongs to different user account"
+    ],
+    "recommended_investigation": "SELECT * FROM Course WHERE teacherId NOT IN (SELECT id FROM User);"
+  },
+  "authentication_analysis": {
+    "status": "✅ WORKING CORRECTLY",
+    "details": [
+      "CSRF token retrieved successfully",
+      "POST /api/auth/callback/credentials returned 200",
+      "Session established with user data",
+      "All authenticated routes accessible",
+      "JWT cookie set properly"
+    ],
+    "conclusion": "Authentication is NOT the problem. The issue is post-login data fetching."
+  },
+  "comparison": {
+    "working_endpoints": [
+      {
+        "endpoint": "/api/courses",
+        "status": 200,
+        "returns": "1 course"
+      },
+      {
+        "endpoint": "/api/students",
+        "status": 200,
+        "returns": "1 student"
+      },
+      {
+        "endpoint": "/api/auth/session",
+        "status": 200,
+        "returns": "Valid session"
+      }
+    ],
+    "failing_endpoints": [
+      {
+        "endpoint": "/api/events",
+        "status": 500,
+        "returns": "Internal server error"
+      }
+    ],
+    "pattern": "Only /api/events fails, suggesting issue is specific to events endpoint logic"
+  }
+}
