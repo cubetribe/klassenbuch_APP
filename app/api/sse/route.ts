@@ -2,6 +2,9 @@ import { NextRequest } from 'next/server';
 
 import { getAuthSession } from '@/lib/auth/session';
 
+// Force dynamic rendering for SSE
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const session = await getAuthSession(request);
   
