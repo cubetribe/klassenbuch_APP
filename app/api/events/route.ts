@@ -290,7 +290,7 @@ async function handleBulkEvents(body: any, userId: string) {
   // Verify course exists and user has access
   const course = await prisma.course.findUnique({
     where: { id: validatedData.courseId },
-    select: { 
+    select: {
       teacherId: true,
       settings: true,
     },
@@ -301,30 +301,79 @@ async function handleBulkEvents(body: any, userId: string) {
   }
 
   if (course.teacherId !== userId) {
-    // For now, only allow course teachers to create bulk events
-    // TODO: Add proper admin role check when needed
     throw new ForbiddenError('You do not have permission to create events for this course');
   }
 
-  // Process events in transaction
-  const results = await prisma.$transaction(async (tx) => {
-    const createdEvents = [];
+  // Get all unique student IDs from the events and fetch them
+  const studentIds = [...new Set(validatedData.events.map((e) => e.studentId).filter(Boolean) as string[])];
+  const students = await prisma.student.findMany({
+    where: {
+      id: { in: studentIds },
+      courseId: validatedData.courseId,
+    },
+  });
+  const studentMap = new Map(students.map((s) => [s.id, s]));
 
+  const studentUpdates: { [studentId: string]: any } = {};
+  const createdEventsPayload: any[] = [];
+
+  // Process events in a transaction
+  const results = await prisma.$transaction(async (tx) => {
     for (const eventData of validatedData.events) {
+      if (!eventData.studentId) continue;
+
+      const student = studentMap.get(eventData.studentId);
+      if (!student) {
+        console.warn(`Student with ID ${eventData.studentId} not found or not in this course.`);
+        continue;
+      }
+
+      const eventPayload = { ...(eventData.payload || {}) };
+      let updateData: any = {};
+
+      if (eventData.type === 'XP_CHANGE' && typeof eventPayload.xpChange === 'number') {
+        const currentXP = studentUpdates[student.id]?.currentXP ?? student.currentXP;
+        const currentColor = studentUpdates[student.id]?.currentColor ?? student.currentColor;
+        const currentLevel = studentUpdates[student.id]?.currentLevel ?? student.currentLevel;
+
+        const result = applyXPChange(currentXP, eventPayload.xpChange, course.settings as any);
+
+        updateData = {
+          currentXP: result.newXP,
+          currentLevel: result.newLevel,
+          currentColor: result.newColor,
+        };
+
+        studentUpdates[student.id] = { ...studentUpdates[student.id], ...updateData };
+
+        eventPayload.previousXP = currentXP;
+        eventPayload.newXP = result.newXP;
+        eventPayload.previousLevel = currentLevel;
+        eventPayload.newLevel = result.newLevel;
+        eventPayload.previousColor = currentColor;
+        eventPayload.newColor = result.newColor;
+      }
+
       const event = await tx.behaviorEvent.create({
         data: {
           type: eventData.type || 'MANUAL_ACTION',
           studentId: eventData.studentId!,
           courseId: validatedData.courseId,
-          payload: eventData.payload || {},
+          payload: eventPayload,
           notes: eventData.notes,
           createdBy: userId,
         },
       });
-      createdEvents.push(event);
+      createdEventsPayload.push(event);
     }
 
-    // Create audit log
+    for (const [studentId, data] of Object.entries(studentUpdates)) {
+      await tx.student.update({
+        where: { id: studentId },
+        data,
+      });
+    }
+
     await tx.auditLog.create({
       data: {
         userId,
@@ -333,15 +382,43 @@ async function handleBulkEvents(body: any, userId: string) {
         entityId: validatedData.courseId,
         metadata: {
           eventCount: validatedData.events.length,
+          updatedStudentCount: Object.keys(studentUpdates).length,
         },
       },
     });
 
-    return createdEvents;
+    return createdEventsPayload;
   });
+
+  // After transaction, broadcast updates for each affected student
+  for (const [studentId, data] of Object.entries(studentUpdates)) {
+    await broadcastStudentUpdate(validatedData.courseId, studentId, data);
+  }
+
+  // Fetch complete events to return to the client
+  const completeEvents = await prisma.behaviorEvent.findMany({
+    where: { id: { in: results.map(r => r.id) } },
+    include: {
+      student: {
+        select: {
+          displayName: true,
+          internalCode: true,
+          currentColor: true,
+          currentLevel: true,
+          currentXP: true,
+        },
+      },
+      creator: { select: { name: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  // Broadcast a single event to notify clients about the bulk update
+  await broadcastBehaviorEvent(validatedData.courseId, { type: 'BULK_UPDATE', count: results.length });
+
 
   return NextResponse.json({
     message: `Successfully created ${results.length} events`,
-    events: results,
+    events: completeEvents,
   }, { status: 201 });
 }
