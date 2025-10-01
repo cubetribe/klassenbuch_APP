@@ -19,14 +19,16 @@ export default function CourseRewardsPage() {
   const params = useParams();
   const courseId = params.id as string;
   
-  const { 
-    courses, 
-    rewards, 
+  const {
+    courses,
+    coursesLoading,
+    rewards,
     rewardsLoading,
     fetchRewards,
     createReward,
     updateReward,
-    deleteReward
+    deleteReward,
+    fetchCourses
   } = useAppStore();
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -42,6 +44,13 @@ export default function CourseRewardsPage() {
   });
 
   const course = (courses || []).find(c => c.id === courseId);
+
+  useEffect(() => {
+    if (!courseId || coursesLoading) return;
+    if (!course) {
+      fetchCourses();
+    }
+  }, [courseId, course, coursesLoading, fetchCourses]);
 
   useEffect(() => {
     if (courseId) {

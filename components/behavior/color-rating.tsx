@@ -40,13 +40,12 @@ const ratings: ColorRating[] = [
 ];
 
 export function ColorRating() {
-  const { 
-    selectedStudents, 
-    students,
+  const {
+    selectedStudents,
     currentCourse,
     createBulkEvents,
     clearSelectedStudents,
-    updateStudent
+    fetchStudents
   } = useAppStore();
 
   const handleRatingClick = async (rating: ColorRating) => {
@@ -61,22 +60,6 @@ export function ColorRating() {
     }
 
     try {
-      // Update each selected student
-      const updatePromises = selectedStudents.map(studentId => {
-        const student = students.find(s => s.id === studentId);
-        if (!student) return Promise.resolve();
-
-        // Update student color and XP - convert to uppercase for API
-        const newXP = Math.max(0, (student.currentXP || 0) + rating.xpChange);
-        
-        return updateStudent(studentId, {
-          currentColor: rating.color.toUpperCase() as 'BLUE' | 'GREEN' | 'YELLOW' | 'RED',
-          currentXP: newXP
-        });
-      });
-
-      await Promise.all(updatePromises);
-
       // Create behavior events for tracking - convert color to uppercase
       const events = selectedStudents.map(studentId => ({
         studentId,
@@ -91,6 +74,7 @@ export function ColorRating() {
       }));
 
       await createBulkEvents(events as any);
+      await fetchStudents(currentCourse.id);
 
       toast.success(
         `${selectedStudents.length} Schüler als "${rating.label}" bewertet`

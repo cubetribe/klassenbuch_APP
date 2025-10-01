@@ -9,8 +9,14 @@ import { Trophy, BookOpen, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function RewardsPage() {
-  const { currentCourse, courses } = useAppStore();
+  const { currentCourse, courses, fetchCourses } = useAppStore();
   const router = useRouter();
+
+  useEffect(() => {
+    if ((courses || []).length === 0) {
+      fetchCourses();
+    }
+  }, [courses, fetchCourses]);
 
   useEffect(() => {
     // If there's a current course, redirect to its rewards page
