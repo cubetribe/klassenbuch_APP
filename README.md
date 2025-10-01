@@ -4,9 +4,18 @@
 ![Next.js](https://img.shields.io/badge/Next.js-13.5.1-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
-![Status](https://img.shields.io/badge/status-Production%20Ready-success)
+![Status](https://img.shields.io/badge/status-Beta-yellow)
 
 Eine moderne, DSGVO-konforme WebApp zur digitalen Verhaltenssteuerung im Klassenzimmer mit Gamification-Elementen. Entwickelt für deutsche Schulen mit Fokus auf Datenschutz und pädagogische Wirksamkeit.
+
+## ⚠️ Bekannte Probleme (Stand: 01. Oktober 2025)
+
+**Kritische Bugs in Production**:
+- 🐛 **XP-Verdopplung**: Bei Massen-Bewertungen (Color Rating) werden XP-Punkte doppelt vergeben
+- 🐛 **Dashboard 400-Fehler**: Startseite zeigt teilweise 400 Bad Request Fehler beim Laden der Events
+- ⚠️ **Rollback durchgeführt**: Fix-Versuch (Branch `fix-bulk-xp-calculation`) verursachte weitere Probleme und wurde zurückgerollt
+
+**Status**: Diese Bugs werden priorisiert behoben. Die App ist funktional, aber mit Einschränkungen nutzbar.
 
 ## 🚀 Live Demo
 
