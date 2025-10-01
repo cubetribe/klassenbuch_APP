@@ -14,7 +14,7 @@ const nextConfig = {
     unoptimized: true
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://klassenbuch-app-3xol.vercel.app'
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || ''
   }
 }
 
