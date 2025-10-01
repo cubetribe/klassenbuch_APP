@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Color, Prisma } from '@prisma/client';
 import { getAuthSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/prisma';
 import { handleApiError, UnauthorizedError, ForbiddenError } from '@/lib/api/errors';
@@ -49,14 +50,14 @@ export async function POST(request: NextRequest) {
         id: { in: studentIds },
         courseId: { in: courseIds },
       },
-      select: { id: true, courseId: true },
+      select: { id: true, courseId: true, currentXP: true },
     });
 
-    const studentMap = new Map(students.map(s => [s.id, s.courseId]));
-    
+    const studentMap = new Map(students.map(s => [s.id, s]));
+
     // Validate that each student belongs to the correct course
     for (const event of events) {
-      const studentCourseId = studentMap.get(event.studentId);
+      const studentCourseId = studentMap.get(event.studentId)?.courseId;
       if (!studentCourseId || studentCourseId !== event.courseId) {
         throw new ForbiddenError(`Student ${event.studentId} does not belong to course ${event.courseId}`);
       }
@@ -90,20 +91,40 @@ export async function POST(request: NextRequest) {
     // Update student colors and XP if needed
     const colorChanges = events.filter(e => e.type === 'COLOR_CHANGE');
     if (colorChanges.length > 0) {
-      await prisma.$transaction(
-        colorChanges.map(event => {
-          const { color, xpChange } = event.payload;
-          return prisma.student.update({
+      const updates: Prisma.PrismaPromise<any>[] = [];
+
+      for (const event of colorChanges) {
+        const student = studentMap.get(event.studentId);
+        if (!student) {
+          continue;
+        }
+
+        const rawXpChange = event.payload?.xpChange;
+        const xpChange = typeof rawXpChange === 'number' ? rawXpChange : 0;
+        const newXP = Math.max(0, student.currentXP + xpChange);
+
+        // Update cached value to support multiple events for the same student
+        student.currentXP = newXP;
+
+        const payloadColor = event.payload?.color;
+        const newColor = typeof payloadColor === 'string'
+          ? (payloadColor.toUpperCase() as Color)
+          : undefined;
+
+        updates.push(
+          prisma.student.update({
             where: { id: event.studentId },
             data: {
-              currentColor: color,
-              currentXP: {
-                increment: xpChange || 0
-              },
+              currentXP: newXP,
+              ...(newColor ? { currentColor: newColor } : {}),
             },
-          });
-        })
-      );
+          })
+        );
+      }
+
+      if (updates.length > 0) {
+        await prisma.$transaction(updates);
+      }
     }
 
     // Create audit logs
