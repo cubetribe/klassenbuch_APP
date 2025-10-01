@@ -82,12 +82,49 @@ class APIClient {
       email: string;
       password: string;
       name: string;
-      schoolName: string;
+      role?: 'TEACHER' | 'CO_TEACHER';
     }) => {
       return this.request('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify(data),
       });
+    },
+
+    verifyEmail: async (token: string) => {
+      return this.request<{ success: boolean; message: string }>(
+        `/api/auth/verify-email?token=${token}`,
+        { method: 'POST' }
+      );
+    },
+
+    resendVerification: async (email: string) => {
+      return this.request<{ success: boolean; message: string }>(
+        '/api/auth/resend-verification',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email }),
+        }
+      );
+    },
+
+    requestReset: async (email: string) => {
+      return this.request<{ success: boolean; message: string }>(
+        '/api/auth/request-reset',
+        {
+          method: 'POST',
+          body: JSON.stringify({ email }),
+        }
+      );
+    },
+
+    resetPassword: async (token: string, newPassword: string) => {
+      return this.request<{ success: boolean; message: string }>(
+        '/api/auth/reset-password',
+        {
+          method: 'POST',
+          body: JSON.stringify({ token, newPassword }),
+        }
+      );
     },
 
     getSession: async () => {

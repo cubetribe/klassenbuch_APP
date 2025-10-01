@@ -38,6 +38,11 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          // Check if email is verified
+          if (!user.emailVerified) {
+            throw new Error('EMAIL_NOT_VERIFIED');
+          }
+
           return {
             id: user.id,
             email: user.email,
@@ -46,7 +51,8 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error) {
           console.error('Auth error:', error);
-          return null;
+          // Re-throw the error to preserve the error message for the frontend
+          throw error;
         }
       },
     }),

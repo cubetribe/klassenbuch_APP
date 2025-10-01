@@ -8,11 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { CheckCircle2, KeyRound } from 'lucide-react';
+import { CheckCircle2, Mail } from 'lucide-react';
 import Link from 'next/link';
 import apiClient from '@/lib/api-client';
 
-export default function ResetPasswordPage() {
+export default function ResendVerificationPage() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +26,7 @@ export default function ResetPasswordPage() {
     setIsLoading(true);
 
     try {
-      await apiClient.auth.requestReset(email);
+      await apiClient.auth.resendVerification(email);
       setSuccess(true);
     } catch (err: any) {
       setError(
@@ -50,27 +50,24 @@ export default function ResetPasswordPage() {
               Email versendet!
             </CardTitle>
             <CardDescription className="text-base mt-2">
-              Anweisungen zum Zurücksetzen wurden gesendet
+              Bestätigungs-Email wurde erneut versendet
             </CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-4">
             <Alert className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950">
               <AlertDescription className="text-sm">
-                Wir haben Ihnen eine Email an <strong>{email}</strong> gesendet.
-                Bitte folgen Sie den Anweisungen in der Email, um Ihr Passwort zurückzusetzen.
+                Wir haben Ihnen eine neue Bestätigungs-Email an <strong>{email}</strong> gesendet.
+                Bitte klicken Sie auf den Link in der Email, um Ihr Konto zu aktivieren.
               </AlertDescription>
             </Alert>
 
-            <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-              <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mb-2">
-                Email nicht erhalten?
-              </p>
-              <ul className="text-sm text-blue-600 dark:text-blue-400 space-y-1 list-disc pl-5">
+            <div className="space-y-3 text-sm text-muted-foreground">
+              <p>Email nicht erhalten?</p>
+              <ul className="list-disc pl-5 space-y-1">
                 <li>Prüfen Sie Ihren Spam-Ordner</li>
                 <li>Stellen Sie sicher, dass die Email-Adresse korrekt ist</li>
                 <li>Warten Sie einige Minuten, die Zustellung kann etwas dauern</li>
-                <li>Der Link ist 1 Stunde lang gültig</li>
               </ul>
             </div>
 
@@ -91,11 +88,11 @@ export default function ResetPasswordPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-            <KeyRound className="w-10 h-10 text-blue-600 dark:text-blue-400" />
+            <Mail className="w-10 h-10 text-blue-600 dark:text-blue-400" />
           </div>
-          <CardTitle className="text-2xl">Passwort zurücksetzen</CardTitle>
+          <CardTitle className="text-2xl">Bestätigungs-Email erneut senden</CardTitle>
           <CardDescription>
-            Geben Sie Ihre Email-Adresse ein, um Ihr Passwort zurückzusetzen
+            Geben Sie Ihre Email-Adresse ein, um einen neuen Bestätigungslink zu erhalten
           </CardDescription>
         </CardHeader>
 
@@ -118,9 +115,6 @@ export default function ResetPasswordPage() {
                 required
                 disabled={isLoading}
               />
-              <p className="text-xs text-muted-foreground">
-                Sie erhalten eine Email mit Anweisungen zum Zurücksetzen Ihres Passworts
-              </p>
             </div>
 
             <Button
@@ -135,8 +129,8 @@ export default function ResetPasswordPage() {
                 </span>
               ) : (
                 <>
-                  <KeyRound className="w-4 h-4 mr-2" />
-                  Reset-Email senden
+                  <Mail className="w-4 h-4 mr-2" />
+                  Bestätigungs-Email senden
                 </>
               )}
             </Button>

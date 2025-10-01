@@ -1,6 +1,3 @@
-// Prisma Schema for Klassenbuch Production Database
-// DSGVO-compliant: Only first names, minimal data storage
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,132 +7,98 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User Management
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  name         String
-  role         Role     @default(TEACHER)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id                 String                   @id @default(uuid())
+  email              String                   @unique
+  passwordHash       String                   @map("password_hash")
+  name               String
+  role               Role                     @default(TEACHER)
+  createdAt          DateTime                 @default(now()) @map("created_at")
+  updatedAt          DateTime                 @updatedAt @map("updated_at")
+  emailVerified      DateTime?                @map("email_verified")
+  verificationToken  String?                  @unique @map("verification_token")
+  resetToken         String?                  @unique @map("reset_token")
+  resetTokenExpiry   DateTime?                @map("reset_token_expiry")
+  events             BehaviorEvent[]
+  consequenceApplied ConsequenceApplication[]
+  courses            Course[]
+  redemptions        RewardRedemption[]
 
-  // Relations
-  courses              Course[]
-  events               BehaviorEvent[]
-  redemptions          RewardRedemption[]
-  consequenceApplied   ConsequenceApplication[]
-  
   @@map("users")
 }
 
-enum Role {
-  TEACHER
-  CO_TEACHER
-  ADMIN
-}
-
-// Course Management
 model Course {
-  id         String   @id @default(uuid())
-  teacherId  String   @map("teacher_id")
-  name       String
-  subject    String
-  schoolYear String   @map("school_year")
-  settings   Json     @default("{}")
-  archived   Boolean  @default(false)
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  teacher      User                     @relation(fields: [teacherId], references: [id])
-  students     Student[]
+  id           String                   @id @default(uuid())
+  teacherId    String                   @map("teacher_id")
+  name         String
+  subject      String
+  schoolYear   String                   @map("school_year")
+  settings     Json                     @default("{}")
+  archived     Boolean                  @default(false)
+  createdAt    DateTime                 @default(now()) @map("created_at")
+  updatedAt    DateTime                 @updatedAt @map("updated_at")
   events       BehaviorEvent[]
-  redemptions  RewardRedemption[]
   applications ConsequenceApplication[]
+  teacher      User                     @relation(fields: [teacherId], references: [id])
+  redemptions  RewardRedemption[]
+  students     Student[]
 
   @@index([teacherId])
   @@map("courses")
 }
 
-// Student Management (DSGVO-compliant)
 model Student {
-  id           String   @id @default(uuid())
-  courseId     String   @map("course_id")
-  displayName  String   @map("display_name") // Only first name
-  internalCode String   @unique @map("internal_code") // Anonymous identifier
-  avatarEmoji  String?  @map("avatar_emoji")
-  currentColor Color    @default(GREEN) @map("current_color")
-  currentLevel Int      @default(0) @map("current_level")
-  currentXP    Int      @default(50) @map("current_xp")
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  // Relations
-  course       Course                   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id           String                   @id @default(uuid())
+  courseId     String                   @map("course_id")
+  displayName  String                   @map("display_name")
+  internalCode String                   @unique @map("internal_code")
+  avatarEmoji  String?                  @map("avatar_emoji")
+  currentColor Color                    @default(GREEN) @map("current_color")
+  currentLevel Int                      @default(0) @map("current_level")
+  currentXP    Int                      @default(50) @map("current_xp")
+  active       Boolean                  @default(true)
+  createdAt    DateTime                 @default(now()) @map("created_at")
+  updatedAt    DateTime                 @updatedAt @map("updated_at")
   events       BehaviorEvent[]
-  redemptions  RewardRedemption[]
   consequences ConsequenceApplication[]
+  redemptions  RewardRedemption[]
+  course       Course                   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
   @@index([internalCode])
   @@map("students")
 }
 
-enum Color {
-  BLUE
-  GREEN
-  YELLOW
-  RED
-}
-
-// Behavior Events (Append-only, event sourcing)
 model BehaviorEvent {
-  id        String      @id @default(uuid())
-  studentId String      @map("student_id")
-  courseId  String      @map("course_id")
+  id        String    @id @default(uuid())
+  studentId String    @map("student_id")
+  courseId  String    @map("course_id")
   type      EventType
-  payload   Json        // Event-specific data
+  payload   Json
   notes     String?
-  createdBy String      @map("created_by")
-  createdAt DateTime    @default(now()) @map("created_at")
-
-  // Relations
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  creator User    @relation(fields: [createdBy], references: [id])
+  createdBy String    @map("created_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  creator   User      @relation(fields: [createdBy], references: [id])
+  student   Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId, createdAt(sort: Desc)])
   @@index([courseId, createdAt(sort: Desc)])
   @@map("behavior_events")
 }
 
-enum EventType {
-  COLOR_CHANGE
-  LEVEL_CHANGE
-  XP_CHANGE
-  REWARD_REDEEMED
-  CONSEQUENCE_APPLIED
-  AUTO_RULE
-  MANUAL_ACTION
-}
-
-// Rewards System (School-wide)
 model Reward {
-  id          String   @id @default(uuid())
+  id          String             @id @default(uuid())
   name        String
   description String?
-  costXP      Int?     @map("cost_xp")
-  costLevel   Int?     @map("cost_level")
-  weeklyLimit Int?     @map("weekly_limit")
+  costXP      Int?               @map("cost_xp")
+  costLevel   Int?               @map("cost_level")
+  weeklyLimit Int?               @map("weekly_limit")
   category    String
   emoji       String?
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  // Relations
+  active      Boolean            @default(true)
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
   redemptions RewardRedemption[]
 
   @@index([active])
@@ -150,64 +113,50 @@ model RewardRedemption {
   redeemedBy String   @map("redeemed_by")
   notes      String?
   createdAt  DateTime @default(now()) @map("created_at")
-
-  // Relations
-  reward   Reward  @relation(fields: [rewardId], references: [id])
-  student  Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course   Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  redeemer User    @relation(fields: [redeemedBy], references: [id])
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  redeemer   User     @relation(fields: [redeemedBy], references: [id])
+  reward     Reward   @relation(fields: [rewardId], references: [id])
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId, createdAt(sort: Desc)])
   @@index([courseId, createdAt(sort: Desc)])
   @@map("reward_redemptions")
 }
 
-// Consequences System (School-wide)
 model Consequence {
-  id            String            @id @default(uuid())
+  id            String                   @id @default(uuid())
   name          String
   description   String?
   severity      ConsequenceSeverity
-  notesRequired Boolean           @default(false) @map("notes_required")
+  notesRequired Boolean                  @default(false) @map("notes_required")
   emoji         String?
-  active        Boolean           @default(true)
-  createdAt     DateTime          @default(now()) @map("created_at")
-  updatedAt     DateTime          @updatedAt @map("updated_at")
-
-  // Relations
-  applications ConsequenceApplication[]
+  active        Boolean                  @default(true)
+  createdAt     DateTime                 @default(now()) @map("created_at")
+  updatedAt     DateTime                 @updatedAt @map("updated_at")
+  applications  ConsequenceApplication[]
 
   @@index([active])
   @@map("consequences")
 }
 
-enum ConsequenceSeverity {
-  MINOR
-  MODERATE
-  MAJOR
-}
-
 model ConsequenceApplication {
-  id            String   @id @default(uuid())
-  consequenceId String   @map("consequence_id")
-  studentId     String   @map("student_id")
-  courseId      String   @map("course_id")
-  appliedBy     String   @map("applied_by")
+  id            String      @id @default(uuid())
+  consequenceId String      @map("consequence_id")
+  studentId     String      @map("student_id")
+  courseId      String      @map("course_id")
+  appliedBy     String      @map("applied_by")
   notes         String?
-  createdAt     DateTime @default(now()) @map("created_at")
-
-  // Relations
-  consequence Consequence @relation(fields: [consequenceId], references: [id])
-  student     Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  applier     User        @relation(fields: [appliedBy], references: [id])
+  createdAt     DateTime    @default(now()) @map("created_at")
+  applier       User        @relation(fields: [appliedBy], references: [id])
+  consequence   Consequence @relation(fields: [consequenceId], references: [id])
+  course        Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student       Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId, createdAt(sort: Desc)])
   @@index([courseId, createdAt(sort: Desc)])
   @@map("consequence_applications")
 }
 
-// Reports (for caching generated reports)
 model Report {
   id          String     @id @default(uuid())
   courseId    String?    @map("course_id")
@@ -215,7 +164,7 @@ model Report {
   type        ReportType
   periodStart DateTime   @map("period_start")
   periodEnd   DateTime   @map("period_end")
-  data        Json       // Aggregated report data
+  data        Json
   pdfUrl      String?    @map("pdf_url")
   createdAt   DateTime   @default(now()) @map("created_at")
   expiresAt   DateTime   @map("expires_at")
@@ -225,13 +174,6 @@ model Report {
   @@map("reports")
 }
 
-enum ReportType {
-  STUDENT_REPORT
-  COURSE_REPORT
-  TEACHER_DASHBOARD
-}
-
-// Audit Log (for DSGVO compliance)
 model AuditLog {
   id         String   @id @default(uuid())
   userId     String?  @map("user_id")
@@ -246,4 +188,39 @@ model AuditLog {
   @@index([userId, createdAt(sort: Desc)])
   @@index([entityType, entityId, createdAt(sort: Desc)])
   @@map("audit_logs")
+}
+
+enum Role {
+  TEACHER
+  CO_TEACHER
+  ADMIN
+}
+
+enum Color {
+  BLUE
+  GREEN
+  YELLOW
+  RED
+}
+
+enum EventType {
+  COLOR_CHANGE
+  LEVEL_CHANGE
+  XP_CHANGE
+  REWARD_REDEEMED
+  CONSEQUENCE_APPLIED
+  AUTO_RULE
+  MANUAL_ACTION
+}
+
+enum ConsequenceSeverity {
+  MINOR
+  MODERATE
+  MAJOR
+}
+
+enum ReportType {
+  STUDENT_REPORT
+  COURSE_REPORT
+  TEACHER_DASHBOARD
 }

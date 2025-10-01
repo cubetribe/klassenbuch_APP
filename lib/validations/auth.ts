@@ -22,8 +22,23 @@ export const changePasswordSchema = z.object({
   path: ['confirmPassword'],
 });
 
-export const resetPasswordSchema = z.object({
+// Email verification schemas
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1, 'Verification token is required'),
+});
+
+export const resendVerificationSchema = z.object({
   email: emailSchema,
+});
+
+// Password reset schemas
+export const requestResetSchema = z.object({
+  email: emailSchema,
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Reset token is required'),
+  newPassword: passwordSchema,
 });
 
 export const updateProfileSchema = z.object({

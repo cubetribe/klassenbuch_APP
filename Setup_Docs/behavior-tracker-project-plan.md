@@ -1,0 +1,725 @@
+# Verhaltenssteuerung WebApp - Detaillierter Projektplan
+
+## 1. Projekt-Übersicht
+
+### Vision
+Eine moderne, faire und transparente WebApp zur Verhaltenssteuerung im Klassenzimmer mit Gamification-Elementen, die Lehrkräften ermöglicht, positives Verhalten zu fördern und konstruktiv mit Herausforderungen umzugehen.
+
+### Kernprinzipien
+- **Privacy-First**: Minimale Datenspeicherung, nur Vornamen
+- **Real-Time Performance**: Sofortiges visuelles Feedback
+- **Fairness & Transparenz**: Sichtbare Regeln und Fortschritte
+- **Mobile-First**: Optimiert für Tablets im Unterricht
+- **Accessibility**: Barrierefreie Nutzung für alle
+
+### Zielgruppe
+- **Primär**: Lehrkräfte (Grundschule bis Sekundarstufe)
+- **Sekundär**: Co-Teacher, Vertretungslehrer
+- **Zukunft**: Schüler-Selbsteinsicht, Eltern-Dashboard
+
+## 2. Technische Architektur (Vercel-Optimiert)
+
+### Tech Stack
+```
+Frontend & Backend: Next.js 14+ (App Router)
+Styling: Tailwind CSS + Radix UI / shadcn/ui
+State Management: Zustand + SWR/React Query
+Database: Vercel Postgres (PostgreSQL)
+Cache: Vercel KV (Redis)
+Real-time: Vercel Edge Functions + Server-Sent Events
+Auth: NextAuth.js v5
+PDF Generation: @react-pdf/renderer (client-side) oder Vercel Functions + Puppeteer
+Monitoring: Vercel Analytics + Sentry
+Deployment: Vercel (Frankfurt Region - EU)
+```
+
+### Architektur-Diagramm
+```
+┌─────────────────────────────────────────────────────┐
+│                    Vercel Edge                       │
+├─────────────────────────────────────────────────────┤
+│                                                      │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────┐  │
+│  │   Next.js    │  │  API Routes  │  │   SSE    │  │
+│  │  App Router  │◄─┤   /api/*     │◄─┤  /live   │  │
+│  └──────────────┘  └──────────────┘  └──────────┘  │
+│         ▲                 ▲               ▲         │
+│         │                 │               │         │
+│  ┌──────▼──────┐  ┌───────▼──────┐  ┌───▼──────┐  │
+│  │   Vercel    │  │   Vercel     │  │  Vercel  │  │
+│  │  Postgres   │  │      KV      │  │   Blob   │  │
+│  │   (Main DB) │  │   (Cache)    │  │  (PDFs)  │  │
+│  └─────────────┘  └──────────────┘  └──────────┘  │
+│                                                      │
+└─────────────────────────────────────────────────────┘
+```
+
+## 3. Entwicklungsphasen
+
+### Phase 0: Design & Prototyping (Woche 1-2)
+- **Wireframes** für alle Hauptscreens
+- **Design System** in Figma
+- **Komponenten-Bibliothek** Definition
+- **User Flow** Diagramme
+- **Clickable Prototype**
+
+### Phase 1: Foundation (Woche 3-4)
+- Projekt-Setup (Next.js, Tailwind, shadcn/ui)
+- Authentifizierung (NextAuth.js)
+- Datenbank-Schema & Migrations
+- Base Layout & Navigation
+- Design System Implementation
+
+### Phase 2: Core Features (Woche 5-7)
+- Kurs-Management (CRUD)
+- Schüler-Verwaltung
+- Live Dashboard (Kachel-Ansicht)
+- Verhaltens-State-Management
+- Quick Actions
+
+### Phase 3: Advanced Features (Woche 8-9)
+- Belohnungs-System
+- Konsequenzen-Katalog
+- Auto-Regeln Engine
+- Tafelmodus (Beamer-Ansicht)
+- Real-time Updates (SSE)
+
+### Phase 4: Reports & Export (Woche 10-11)
+- Report-Generator
+- PDF/CSV Export
+- Analytics Dashboard
+- Verlaufs-Ansicht
+
+### Phase 5: Polish & Launch (Woche 12)
+- Performance-Optimierung
+- Security Audit
+- User Testing
+- Documentation
+- Deployment
+
+## 4. Detaillierte Feature-Spezifikationen
+
+### 4.1 Authentifizierung & Benutzer-Management
+
+#### Features
+- Email/Password Login
+- Passwort-Reset via Email
+- Session-Management (httpOnly Cookies)
+- Role-Based Access Control (Teacher, Co-Teacher, Admin)
+- Account-Settings (Name, Email, Passwort ändern)
+
+#### Sicherheit
+- Argon2 Password Hashing
+- CSRF Protection
+- Rate Limiting
+- 2FA (optional, Phase 2)
+
+### 4.2 Kurs-Management
+
+#### Features
+- **Kurs erstellen**: Name, Fach, Schuljahr, Klasse
+- **Kurs-Settings**: Verhaltensregeln, Level-System, Farb-Labels
+- **Kurs archivieren**: Soft-Delete mit Wiederherstellung
+- **Kurs duplizieren**: Als Template für neues Schuljahr
+- **Co-Teacher einladen**: Via Email mit Rolle
+
+#### Konfigurierbare Elemente pro Kurs
+```
+- Farb-System:
+  * Labels (z.B. "Superstar", "Gut dabei", "Achtung", "Stop")
+  * Icons/Emojis
+  * Reihenfolge
+  
+- Level/XP-System:
+  * Start-Level/XP
+  * Schwellen pro Farbe
+  * Max/Min Werte
+  
+- Actions/Buttons:
+  * Custom Actions (+5 XP, -10 XP, etc.)
+  * Cooldowns
+  * Kommentar-Pflicht
+  
+- Auto-Regeln:
+  * Zeit-basierte Regeln
+  * Event-basierte Trigger
+```
+
+### 4.3 Schüler-Verwaltung
+
+#### Features
+- **Schüler hinzufügen**: Einzeln oder Bulk-Import (CSV)
+- **Schüler-Profil**: Vorname, Interne ID (auto-generiert), Avatar (optional)
+- **Status-Tracking**: Aktuelle Farbe, Level/XP, letzte Änderung
+- **Historie**: Alle Events chronologisch
+- **Notizen**: Private Lehrer-Notizen (verschlüsselt)
+
+#### Datenschutz
+- Keine Nachnamen
+- Anonyme IDs (z.B. "2024-3A-M7K9")
+- Auto-Anonymisierung nach Schuljahr-Ende
+- DSGVO-konformer Export
+
+### 4.4 Live-Unterricht Dashboard
+
+#### Hauptansicht
+```
+┌─────────────────────────────────────────┐
+│  Kurs: 5a Mathematik      [Tafelmodus] │
+├─────────────────────────────────────────┤
+│                                          │
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐   │
+│  │Max │ │Lisa│ │Tom │ │Anna│ │Ben │   │
+│  │ 🟢 │ │ 🔵 │ │ 🟡 │ │ 🟢 │ │ 🔴 │   │
+│  │Lv.5│ │Lv.8│ │Lv.2│ │Lv.6│ │Lv.1│   │
+│  └────┘ └────┘ └────┘ └────┘ └────┘   │
+│                                          │
+│  Quick Actions: [+1] [-1] [⚡] [🎁] [⚠️] │
+│                                          │
+└─────────────────────────────────────────┘
+```
+
+#### Interaktions-Muster
+- **Single-Tap**: Schüler auswählen
+- **Long-Press**: Quick-Action Menü
+- **Swipe**: Farbe ändern
+- **Drag & Drop**: Sitzordnung anpassen
+
+### 4.5 Verhaltenslogik-Engine
+
+#### Event-Types
+```typescript
+type BehaviorEvent = 
+  | ColorChange      // Farbwechsel
+  | LevelChange      // Level/XP Änderung
+  | RewardRedeemed   // Belohnung eingelöst
+  | ConsequenceGiven // Konsequenz erteilt
+  | AutoRule         // Automatische Regel
+  | TeacherNote      // Lehrer-Kommentar
+```
+
+#### Processing Pipeline
+1. **Event Creation**: User-Action oder Auto-Rule
+2. **Validation**: Regeln prüfen (Cooldowns, Limits)
+3. **State Update**: Optimistic UI Update
+4. **Persistence**: Event in DB speichern
+5. **Broadcast**: SSE an alle Clients
+6. **Side Effects**: Notifications, Auto-Rules triggern
+
+### 4.6 Belohnungs-System
+
+#### Katalog-Management
+- Vordefinierte Templates
+- Custom Rewards erstellen
+- Kosten in XP oder Level
+- Wochen/Monats-Limits
+- Kategorien (Privilegien, Items, Aktivitäten)
+
+#### Einlöse-Prozess
+1. Schüler hat genug XP/Level
+2. Lehrer bestätigt Einlösung
+3. XP werden abgezogen
+4. Event wird geloggt
+5. Optional: Benachrichtigung
+
+### 4.7 Tafelmodus (Beamer/Public Display)
+
+#### Features
+- **Vollbild-Modus**: F11 oder Button
+- **Privacy-Mode**: Nur Initialen
+- **Auto-Refresh**: Live-Updates ohne Reload
+- **Themes**: Hell/Dunkel/Kontrast
+- **Layouts**: Grid/Liste/Sitzplan
+- **QR-Code**: Für Co-Teacher Zugang
+
+#### Anzeige-Optionen
+- Große Schrift für Projektion
+- Animations-Toggle
+- Sound-Effects (optional)
+- Countdown-Timer
+- Klassen-Ziele
+
+### 4.8 Reports & Analytics
+
+#### Report-Types
+1. **Schüler-Report**
+   - Verhaltens-Timeline
+   - XP/Level Verlauf
+   - Belohnungen/Konsequenzen
+   - Trend-Analyse
+
+2. **Klassen-Report**
+   - Farb-Verteilung
+   - Durchschnittliche Levels
+   - Top-Performer
+   - Verbesserungs-Bereiche
+
+3. **Lehrer-Dashboard**
+   - Alle Kurse Übersicht
+   - Wochen/Monats-Statistiken
+   - Interventions-Erfolgsrate
+
+#### Export-Formate
+- **PDF**: Formatierte Reports mit Charts
+- **CSV**: Rohdaten für Excel
+- **JSON**: Für API-Integration
+
+## 5. UI/UX Design-Spezifikationen
+
+### Design System
+
+#### Farb-Palette
+```
+Primary:
+- Blue-600: #2563EB (Primary Actions)
+- Blue-500: #3B82F6 (Hover)
+
+Verhalten:
+- Blue: #3B82F6 (Exzellent)
+- Green: #10B981 (Gut)
+- Yellow: #F59E0B (Warnung)
+- Red: #EF4444 (Kritisch)
+
+Neutral:
+- Gray-50 bis Gray-900 (Backgrounds, Text)
+```
+
+#### Typography
+```
+Font: Inter (Google Fonts)
+- Heading: 24-32px, Font-Weight 600
+- Body: 14-16px, Font-Weight 400
+- Small: 12px, Font-Weight 400
+- Button: 14px, Font-Weight 500
+```
+
+#### Spacing & Grid
+```
+Base Unit: 4px
+Spacing Scale: 4, 8, 12, 16, 24, 32, 48, 64
+Container Max-Width: 1280px
+Grid: 12 Columns, 24px Gutter
+```
+
+### Responsive Breakpoints
+```
+Mobile: 320px - 639px
+Tablet: 640px - 1023px
+Desktop: 1024px - 1279px
+Wide: 1280px+
+```
+
+### Key Screens (Wireframe-Liste)
+
+1. **Login/Register**
+2. **Dashboard** (Kurs-Übersicht)
+3. **Kurs-Detail** (Live-View)
+4. **Kurs-Settings**
+5. **Schüler-Liste**
+6. **Schüler-Detail**
+7. **Belohnungs-Katalog**
+8. **Reports**
+9. **Tafelmodus**
+10. **Account-Settings**
+
+## 6. API-Spezifikation (Detailliert)
+
+### Authentication Endpoints
+```
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/logout
+POST   /api/auth/refresh
+POST   /api/auth/reset-password
+GET    /api/auth/me
+```
+
+### Course Management
+```
+GET    /api/courses                    // Liste aller Kurse
+POST   /api/courses                    // Kurs erstellen
+GET    /api/courses/:id                // Kurs-Details
+PATCH  /api/courses/:id                // Kurs updaten
+DELETE /api/courses/:id                // Kurs archivieren
+POST   /api/courses/:id/duplicate      // Kurs duplizieren
+POST   /api/courses/:id/invite         // Co-Teacher einladen
+```
+
+### Student Management
+```
+GET    /api/courses/:id/students       // Schüler-Liste
+POST   /api/courses/:id/students       // Schüler hinzufügen
+PATCH  /api/students/:id               // Schüler updaten
+DELETE /api/students/:id               // Schüler entfernen
+POST   /api/courses/:id/students/bulk  // Bulk-Import
+GET    /api/students/:id/history       // Event-Historie
+```
+
+### Behavior Events
+```
+POST   /api/courses/:id/events         // Event erstellen
+GET    /api/courses/:id/events         // Events abrufen
+GET    /api/courses/:id/state          // Aktueller State aller Schüler
+GET    /api/courses/:id/live           // SSE Stream für Live-Updates
+```
+
+### Rewards & Consequences
+```
+GET    /api/courses/:id/rewards        // Belohnungs-Katalog
+POST   /api/courses/:id/rewards        // Belohnung erstellen
+PATCH  /api/rewards/:id                // Belohnung updaten
+POST   /api/rewards/:id/redeem         // Belohnung einlösen
+
+GET    /api/courses/:id/consequences   // Konsequenzen-Liste
+POST   /api/courses/:id/consequences   // Konsequenz erstellen
+POST   /api/consequences/:id/apply     // Konsequenz anwenden
+```
+
+### Reports & Export
+```
+GET    /api/reports/student/:id        // Schüler-Report
+GET    /api/reports/course/:id         // Kurs-Report
+GET    /api/reports/teacher            // Lehrer-Dashboard
+GET    /api/export/course/:id          // Export (format: pdf|csv|json)
+```
+
+## 7. Datenbank-Schema (Vercel Postgres)
+
+### Core Tables
+```sql
+-- Benutzer & Auth
+users (
+  id UUID PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  name VARCHAR(100),
+  role ENUM('teacher', 'co_teacher', 'admin'),
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+)
+
+-- Kurse
+courses (
+  id UUID PRIMARY KEY,
+  teacher_id UUID REFERENCES users(id),
+  name VARCHAR(100) NOT NULL,
+  subject VARCHAR(50),
+  school_year VARCHAR(20),
+  settings JSONB NOT NULL DEFAULT '{}',
+  archived BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+)
+
+-- Schüler
+students (
+  id UUID PRIMARY KEY,
+  course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
+  display_name VARCHAR(50) NOT NULL,
+  internal_code VARCHAR(20) UNIQUE NOT NULL,
+  avatar_emoji VARCHAR(10),
+  current_color VARCHAR(20) DEFAULT 'green',
+  current_level INTEGER DEFAULT 0,
+  current_xp INTEGER DEFAULT 0,
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+)
+
+-- Events (Append-Only)
+events (
+  id UUID PRIMARY KEY,
+  student_id UUID REFERENCES students(id),
+  course_id UUID REFERENCES courses(id),
+  type VARCHAR(50) NOT NULL,
+  payload JSONB NOT NULL,
+  created_by UUID REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW()
+)
+
+-- Belohnungen
+rewards (
+  id UUID PRIMARY KEY,
+  course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  cost_xp INTEGER,
+  cost_level INTEGER,
+  weekly_limit INTEGER,
+  category VARCHAR(50),
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP
+)
+
+-- Einlösungen
+redemptions (
+  id UUID PRIMARY KEY,
+  reward_id UUID REFERENCES rewards(id),
+  student_id UUID REFERENCES students(id),
+  course_id UUID REFERENCES courses(id),
+  redeemed_by UUID REFERENCES users(id),
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+)
+
+-- Konsequenzen
+consequences (
+  id UUID PRIMARY KEY,
+  course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  severity ENUM('minor', 'moderate', 'major'),
+  notes_required BOOLEAN DEFAULT FALSE,
+  active BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP
+)
+
+-- Indices für Performance
+CREATE INDEX idx_events_student_course ON events(student_id, course_id, created_at DESC);
+CREATE INDEX idx_students_course ON students(course_id) WHERE active = TRUE;
+CREATE INDEX idx_redemptions_student ON redemptions(student_id, created_at DESC);
+```
+
+## 8. Security & Performance
+
+### Security-Maßnahmen
+1. **Authentication**: NextAuth.js mit JWT + httpOnly Cookies
+2. **Authorization**: Middleware-basierte Route Protection
+3. **Input Validation**: Zod Schemas für alle API Inputs
+4. **SQL Injection**: Prepared Statements (Prisma/Drizzle)
+5. **XSS Protection**: React's automatisches Escaping
+6. **CSRF**: Token-basierte Protection
+7. **Rate Limiting**: Vercel Edge Middleware
+8. **Encryption**: Sensitive Daten (Notizen) mit AES-256
+
+### Performance-Optimierungen
+1. **Database**:
+   - Connection Pooling
+   - Optimierte Indices
+   - Materialized Views für Reports
+
+2. **Caching** (Vercel KV):
+   - Session Cache (5 min)
+   - Course State Cache (30 sec)
+   - Report Cache (5 min)
+
+3. **Frontend**:
+   - Code Splitting
+   - Lazy Loading
+   - Optimistic Updates
+   - Virtual Scrolling für große Listen
+   - Image Optimization (next/image)
+
+4. **API**:
+   - Pagination
+   - Field Selection
+   - Batch Operations
+   - Compression (gzip/brotli)
+
+### Performance-Ziele
+- **Time to First Byte**: < 200ms
+- **First Contentful Paint**: < 1s
+- **Time to Interactive**: < 2s
+- **API Response Time**: < 300ms (p95)
+- **Lighthouse Score**: > 90
+
+## 9. Testing-Strategie
+
+### Test-Pyramide
+```
+         /\
+        /E2E\        5%  - Critical User Journeys
+       /------\
+      /Integr. \    15%  - API & DB Tests
+     /----------\
+    / Component  \  30%  - React Component Tests
+   /--------------\
+  /   Unit Tests   \ 50%  - Business Logic
+ /------------------\
+```
+
+### Test-Tools
+- **Unit Tests**: Vitest
+- **Component Tests**: React Testing Library
+- **Integration Tests**: Supertest
+- **E2E Tests**: Playwright
+- **Performance**: Lighthouse CI
+
+### Critical Test Scenarios
+1. Login/Logout Flow
+2. Create Course & Add Students
+3. Live Behavior Updates
+4. Reward Redemption
+5. Report Generation
+6. Real-time Sync
+
+## 10. Deployment & DevOps
+
+### Environment-Strategie
+```
+Development (Local) → Preview (Vercel) → Production (Vercel)
+```
+
+### CI/CD Pipeline (GitHub Actions)
+```yaml
+1. Code Push/PR
+2. Lint & Format Check
+3. Type Check
+4. Unit & Component Tests
+5. Build
+6. Integration Tests
+7. Deploy to Preview
+8. E2E Tests on Preview
+9. Manual Approval
+10. Deploy to Production
+```
+
+### Monitoring & Logging
+- **Error Tracking**: Sentry
+- **Analytics**: Vercel Analytics
+- **Performance**: Vercel Speed Insights
+- **Logs**: Structured Logging (ohne PII)
+- **Uptime**: Vercel Status + Custom Health Checks
+
+### Backup & Recovery
+- **Database**: Daily Automated Backups (30 Tage Retention)
+- **Point-in-Time Recovery**: Bis zu 7 Tage
+- **Export**: Monatliche Full-Exports
+
+## 11. Kosten-Kalkulation (Vercel)
+
+### Geschätzte Kosten pro Monat
+```
+Vercel Pro: $20
+- Unlimited Bandwidth
+- 1000 Function Invocations/Tag inklusive
+
+Vercel Postgres: $15
+- 256 MB RAM
+- 1 GB Storage
+
+Vercel KV (Redis): $1
+- 256 MB
+- 30k Requests/Tag
+
+Vercel Blob (PDFs): $3
+- 1 GB Storage
+
+Domain: $15/Jahr = $1.25/Monat
+
+TOTAL: ~$40/Monat für bis zu 500 aktive Nutzer
+```
+
+## 12. Projekt-Timeline
+
+### Gesamtdauer: 12 Wochen
+
+```
+Woche 1-2:   Design & Prototyping
+Woche 3-4:   Foundation & Setup
+Woche 5-7:   Core Features
+Woche 8-9:   Advanced Features
+Woche 10-11: Reports & Polish
+Woche 12:    Testing & Launch
+```
+
+### Meilensteine
+- **M1 (Woche 2)**: Design-System fertig, Clickable Prototype
+- **M2 (Woche 4)**: Auth & Basic CRUD funktioniert
+- **M3 (Woche 7)**: Live-Dashboard mit Real-time Updates
+- **M4 (Woche 9)**: Vollständiges Feature-Set
+- **M5 (Woche 11)**: Production-Ready mit Tests
+- **M6 (Woche 12)**: Go-Live
+
+## 13. Risiken & Mitigationen
+
+### Technische Risiken
+| Risiko | Wahrscheinlichkeit | Impact | Mitigation |
+|--------|-------------------|---------|------------|
+| Performance-Probleme bei vielen gleichzeitigen Updates | Mittel | Hoch | Optimistic Updates, Debouncing, Caching |
+| Komplexität der Auto-Regeln | Hoch | Mittel | Einfaches Rule-System für MVP |
+| PDF-Generation Performance | Niedrig | Niedrig | Client-side Generation oder Queue-System |
+
+### Projekt-Risiken
+| Risiko | Wahrscheinlichkeit | Impact | Mitigation |
+|--------|-------------------|---------|------------|
+| Scope Creep | Hoch | Hoch | Strikte MVP-Definition, Feature-Freeze |
+| Datenschutz-Bedenken | Mittel | Hoch | DSGVO-Beratung, Minimal-Daten-Prinzip |
+| User Adoption | Mittel | Hoch | User Testing, Lehrer-Feedback früh einholen |
+
+## 14. Post-Launch Roadmap
+
+### Phase 1 (Monat 1-3)
+- Bug Fixes & Performance Tuning
+- User Feedback Integration
+- Mobile App (React Native)
+
+### Phase 2 (Monat 4-6)
+- Schüler-Ansicht (Read-only)
+- Eltern-Portal
+- Mehr Auto-Regel Templates
+- Gamification-Erweiterungen
+
+### Phase 3 (Monat 7-12)
+- Multi-Schule Support
+- Admin-Dashboard
+- API für Dritt-Integrationen
+- KI-basierte Verhaltens-Insights
+
+## 15. Erfolgs-Metriken
+
+### User Engagement
+- Daily Active Users (DAU)
+- Durchschnittliche Session-Dauer
+- Actions pro Session
+- Retention Rate (30 Tage)
+
+### System Performance
+- Uptime (Ziel: 99.9%)
+- Response Time (p95 < 300ms)
+- Error Rate (< 0.1%)
+- User-reported Bugs
+
+### Business Metrics
+- Anzahl aktive Schulen
+- Anzahl aktive Klassen
+- User Satisfaction Score (NPS)
+- Feature Adoption Rate
+
+---
+
+## Anhang A: Glossar
+
+- **XP**: Experience Points - Punkte-System für Verhaltens-Tracking
+- **Level**: Stufe basierend auf gesammelten XP
+- **Quick Action**: Ein-Klick-Aktionen für häufige Verhaltens-Updates
+- **Tafelmodus**: Öffentliche Ansicht für Beamer/Smartboard
+- **Auto-Regel**: Automatische Verhaltens-Updates basierend auf Zeit oder Events
+- **Cooldown**: Zeitsperre zwischen bestimmten Aktionen
+- **Soft-Delete**: Archivierung statt Löschung für Wiederherstellung
+
+## Anhang B: Technologie-Entscheidungen
+
+### Warum Next.js?
+- Server Components für sichere Daten-Abfragen
+- Eingebautes API-Route-System
+- Exzellente Vercel-Integration
+- Große Community & Ecosystem
+
+### Warum Vercel Postgres statt Supabase?
+- Native Vercel-Integration
+- Keine separaten Credentials
+- Automatisches Connection Pooling
+- Gleiche Region wie Functions
+
+### Warum Server-Sent Events statt WebSockets?
+- Einfachere Implementation
+- Funktioniert mit Serverless
+- Ausreichend für Use Case (nur Server→Client)
+- Automatisches Reconnect
+
+### Warum Tailwind CSS?
+- Konsistentes Design-System
+- Kleine Bundle-Size
+- Exzellente DX
+- Perfect für Rapid Prototyping

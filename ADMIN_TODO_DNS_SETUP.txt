@@ -1,0 +1,184 @@
+================================================================================
+  📋 TO-DO-LISTE FÜR ADMIN - DNS & SUBDOMAIN SETUP
+  Projekt: Klassenbuch App
+  Domain-Provider: All-Inkl.com
+================================================================================
+
+================================================================================
+✅ AUFGABE 1: SUBDOMAIN EINRICHTEN & WEITERLEITEN
+================================================================================
+
+ZIEL: klassenbuch.goaiex.com --> https://klassenbuch-app.vercel.app/
+
+WO: All-Inkl.com KAS-Interface
+LOGIN: https://kas.all-inkl.com
+
+
+SCHRITT-FÜR-SCHRITT ANLEITUNG:
+--------------------------------------------------------------------------------
+
+1. LOGIN BEI ALL-INKL.COM
+   - Öffne: https://kas.all-inkl.com
+   - Mit deinen Zugangsdaten anmelden
+
+2. DOMAIN-VERWALTUNG ÖFFNEN
+   - Im linken Menü: "Domain" klicken
+   - Domain "goaiex.com" auswählen
+
+3. SUBDOMAIN ERSTELLEN
+   - Button: "Subdomain anlegen" oder "Neue Subdomain"
+   - Name eingeben: klassenbuch
+   - Ergebnis wird sein: klassenbuch.goaiex.com
+   - Speichern
+
+4. DNS-EINTRAG SETZEN (CNAME-RECORD)
+   - Im Bereich "DNS-Einstellungen" oder "DNS-Verwaltung"
+   - Neuen DNS-Eintrag hinzufügen:
+
+   ┌─────────────────────────────────────────────────────┐
+   │ Typ:      CNAME                                     │
+   │ Name:     klassenbuch                               │
+   │ Ziel:     cname.vercel-dns.com                      │
+   │ TTL:      3600 (oder Standard)                      │
+   └─────────────────────────────────────────────────────┘
+
+   - Speichern
+
+5. WARTEN AUF DNS-PROPAGIERUNG
+   - Wartezeit: 5-30 Minuten
+   - Testen: https://klassenbuch.goaiex.com aufrufen
+   - Sollte dann zu https://klassenbuch-app.vercel.app/ weiterleiten
+
+
+⏱️  ZEITAUFWAND: ~5 Minuten
+⌛ WARTEZEIT: 5-30 Minuten (DNS-Propagierung)
+
+STATUS: ☐ Kann SOFORT erledigt werden!
+
+
+================================================================================
+✅ AUFGABE 2: DNS-EINTRÄGE FÜR EMAIL-VERSAND (RESEND)
+================================================================================
+
+ZIEL: Domain verifizieren, damit Emails von mail@goaiex.com versendet werden
+
+WO: All-Inkl.com KAS --> DNS-Einstellungen
+
+
+⚠️  WICHTIG: DIESE AUFGABE ERST MACHEN, WENN DENNIS DIR DIE GENAUEN DNS-WERTE GIBT!
+
+
+SCHRITT-FÜR-SCHRITT ANLEITUNG:
+--------------------------------------------------------------------------------
+
+1. WARTEN AUF DNS-WERTE VON DENNIS
+   - Dennis richtet zuerst Resend-Account ein
+   - Dann bekommst du 3-4 DNS-Einträge zum Kopieren
+   - Du bekommst einen Screenshot + die exakten Werte
+
+2. LOGIN BEI ALL-INKL.COM
+   - Öffne: https://kas.all-inkl.com
+   - Mit deinen Zugangsdaten anmelden
+
+3. DNS-VERWALTUNG ÖFFNEN
+   - Im linken Menü: "Domain" klicken
+   - Domain "goaiex.com" auswählen
+   - "DNS-Einstellungen" oder "DNS-Verwaltung" oder "DNS-Editor" öffnen
+
+4. DNS-EINTRÄGE HINZUFÜGEN
+   Du musst folgende 3 Einträge hinzufügen (genaue Werte kommen später):
+
+
+   a) DOMAIN VERIFICATION (TXT-Record):
+   ┌─────────────────────────────────────────────────────┐
+   │ Typ:      TXT                                       │
+   │ Name:     @ (oder leer lassen)                      │
+   │ Wert:     [WERT VON DENNIS - wird später gegeben]  │
+   │ TTL:      3600                                      │
+   └─────────────────────────────────────────────────────┘
+
+
+   b) DKIM-RECORD (TXT-Record):
+   ┌─────────────────────────────────────────────────────┐
+   │ Typ:      TXT                                       │
+   │ Name:     resend._domainkey                         │
+   │ Wert:     [WERT VON DENNIS - wird später gegeben]  │
+   │ TTL:      3600                                      │
+   └─────────────────────────────────────────────────────┘
+
+
+   c) SPF-RECORD (TXT-Record):
+   ┌─────────────────────────────────────────────────────┐
+   │ Typ:      TXT                                       │
+   │ Name:     @ (oder leer lassen)                      │
+   │ Wert:     v=spf1 include:spf.resend.com ~all        │
+   │ TTL:      3600                                      │
+   └─────────────────────────────────────────────────────┘
+
+   - Jeden Eintrag einzeln speichern
+
+5. WARTEN AUF DNS-PROPAGIERUNG
+   - Wartezeit: 10-30 Minuten
+   - Dennis prüft dann bei Resend, ob alles verifiziert ist
+
+
+⏱️  ZEITAUFWAND: ~10 Minuten (nachdem du die Werte hast)
+⌛ WARTEZEIT: 10-30 Minuten (DNS-Propagierung)
+
+STATUS: ☐ Kann SPÄTER erledigt werden (wenn Dennis die DNS-Werte gibt!)
+
+
+================================================================================
+📝 WICHTIGE HINWEISE
+================================================================================
+
+⚠️  ALL-INKL.COM INTERFACE-VARIANTEN:
+    - Manche Accounts haben "DNS-Editor"
+    - Andere haben "Erweiterte DNS-Einstellungen"
+    - Andere haben "Domain-Einstellungen" --> "DNS"
+    - Falls du die Option nicht findest: All-Inkl Support-Chat nutzen
+
+
+⚠️  REIHENFOLGE BEACHTEN:
+    1. Aufgabe 1 (Subdomain) --> JETZT machbar!
+    2. Aufgabe 2 (DNS für Emails) --> WARTEN auf Dennis!
+
+
+✅  AUFGABE 1 KANNST DU SOFORT MACHEN!
+    Nach Erledigung: Dennis Bescheid geben, damit er die Domain bei Vercel
+    hinzufügen kann.
+
+
+⚠️  AUFGABE 2 ERST MACHEN, WENN DENNIS DIR SCREENSHOT + WERTE GIBT!
+    Die exakten DNS-Werte kommen von Resend und müssen 1:1 kopiert werden.
+
+
+================================================================================
+🎯 ZUSAMMENFASSUNG
+================================================================================
+
+┌──────────────────┬─────────────────────────────┬──────────┬─────────┐
+│ Aufgabe          │ Was                         │ Wann     │ Dauer   │
+├──────────────────┼─────────────────────────────┼──────────┼─────────┤
+│ 1. Subdomain     │ klassenbuch.goaiex.com      │ JETZT    │ 5 Min   │
+│                  │ --> Vercel CNAME            │          │         │
+├──────────────────┼─────────────────────────────┼──────────┼─────────┤
+│ 2. Email DNS     │ TXT/DKIM/SPF Records        │ SPÄTER   │ 10 Min  │
+│                  │ für mail@goaiex.com         │          │         │
+└──────────────────┴─────────────────────────────┴──────────┴─────────┘
+
+
+================================================================================
+❓ FRAGEN ODER PROBLEME?
+================================================================================
+
+- Screenshots machen und an Dennis schicken! 📸
+- All-Inkl.com Support-Chat nutzen bei technischen Fragen
+- Dennis gibt Bescheid, sobald die DNS-Werte für Aufgabe 2 bereit sind
+
+
+================================================================================
+Stand: 01. Oktober 2025
+Projekt: Klassenbuch App v0.9.4
+Domain: goaiex.com (All-Inkl.com)
+================================================================================

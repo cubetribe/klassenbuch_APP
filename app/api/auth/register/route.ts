@@ -3,6 +3,8 @@ import { prisma } from '@/lib/db/prisma';
 import { hashPassword } from '@/lib/utils/password';
 import { registerSchema } from '@/lib/validations/auth';
 import { handleApiError, ConflictError } from '@/lib/api/errors';
+import { generateToken } from '@/lib/utils/token';
+import { sendVerificationEmail } from '@/lib/email/service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,6 +23,9 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(validatedData.password);
 
+    // Generate verification token
+    const verificationToken = generateToken();
+
     // Create user
     const user = await prisma.user.create({
       data: {
@@ -28,6 +33,7 @@ export async function POST(request: NextRequest) {
         name: validatedData.name,
         passwordHash,
         role: validatedData.role,
+        verificationToken,
       },
       select: {
         id: true,
@@ -38,10 +44,23 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Send verification email
+    const emailResult = await sendVerificationEmail(
+      user.email,
+      verificationToken,
+      user.name
+    );
+
+    if (!emailResult.success) {
+      console.error('Failed to send verification email:', emailResult.error);
+      // Still return success but inform user that email might not have been sent
+    }
+
     return NextResponse.json(
       {
-        message: 'User created successfully',
+        message: 'Registration successful. Please check your email to verify your account.',
         user,
+        emailSent: emailResult.success,
       },
       { status: 201 }
     );
