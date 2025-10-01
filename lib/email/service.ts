@@ -14,8 +14,9 @@ function getResendClient(): Resend {
   return resend;
 }
 
-const emailFrom = process.env.EMAIL_FROM || 'onboarding@resend.dev';
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+// Trim environment variables to remove any whitespace or newlines
+const emailFrom = (process.env.EMAIL_FROM || 'onboarding@resend.dev').trim();
+const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').trim();
 
 interface EmailResult {
   success: boolean;
@@ -35,7 +36,7 @@ export async function sendVerificationEmail(
   name: string
 ): Promise<EmailResult> {
   try {
-    const verificationUrl = `${appUrl}/verify-email?token=${token}`;
+    const verificationUrl = `${appUrl}/verify-email/${token}`;
     const client = getResendClient();
 
     await client.emails.send({
@@ -102,7 +103,7 @@ export async function sendPasswordResetEmail(
   name: string
 ): Promise<EmailResult> {
   try {
-    const resetUrl = `${appUrl}/reset-password?token=${token}`;
+    const resetUrl = `${appUrl}/reset-password/${token}`;
     const client = getResendClient();
 
     await client.emails.send({
