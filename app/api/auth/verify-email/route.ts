@@ -8,10 +8,34 @@ const verifyEmailSchema = z.object({
   token: z.string().min(1, 'Verification token is required'),
 });
 
+// Support both POST (from frontend) and GET (from email link)
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams;
+    const token = searchParams.get('token');
+
+    if (!token) {
+      throw new ValidationError('Token is required');
+    }
+
+    return await verifyEmailLogic(token);
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { token } = verifyEmailSchema.parse(body);
+
+    return await verifyEmailLogic(token);
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+async function verifyEmailLogic(token: string) {
 
     // Find user with this verification token
     const user = await prisma.user.findUnique({
@@ -56,7 +80,4 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error) {
-    return handleApiError(error);
-  }
 }
