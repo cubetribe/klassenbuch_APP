@@ -61,28 +61,13 @@ export function ColorRating() {
     }
 
     try {
-      // Update each selected student
-      const updatePromises = selectedStudents.map(studentId => {
-        const student = students.find(s => s.id === studentId);
-        if (!student) return Promise.resolve();
-
-        // Update student color and XP - convert to uppercase for API
-        const newXP = Math.max(0, (student.currentXP || 0) + rating.xpChange);
-        
-        return updateStudent(studentId, {
-          currentColor: rating.color.toUpperCase() as 'BLUE' | 'GREEN' | 'YELLOW' | 'RED',
-          currentXP: newXP
-        });
-      });
-
-      await Promise.all(updatePromises);
-
-      // Create behavior events for tracking - convert color to uppercase
+      // Create behavior events - Backend handles XP calculation and student updates
+      // This eliminates the XP doubling bug by using a single source of truth
       const events = selectedStudents.map(studentId => ({
         studentId,
         courseId: currentCourse.id,
-        type: 'COLOR_CHANGE',
-        payload: { 
+        type: 'XP_CHANGE', // Changed from COLOR_CHANGE to trigger XP calculation
+        payload: {
           color: rating.color.toUpperCase(),
           label: rating.label,
           xpChange: rating.xpChange
@@ -90,12 +75,12 @@ export function ColorRating() {
         notes: `Bewertung: ${rating.label}`
       }));
 
-      await createBulkEvents(events as any);
+      await createBulkEvents(events);
 
       toast.success(
         `${selectedStudents.length} Schüler als "${rating.label}" bewertet`
       );
-      
+
       clearSelectedStudents();
     } catch (error) {
       console.error('Rating error:', error);

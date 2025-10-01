@@ -331,6 +331,8 @@ async function handleBulkEvents(body: any, userId: string) {
       const eventPayload = { ...(eventData.payload || {}) };
       let updateData: any = {};
 
+      // Handle XP changes for XP_CHANGE events
+      // This now also handles color ratings from the Color Rating component
       if (eventData.type === 'XP_CHANGE' && typeof eventPayload.xpChange === 'number') {
         const currentXP = studentUpdates[student.id]?.currentXP ?? student.currentXP;
         const currentColor = studentUpdates[student.id]?.currentColor ?? student.currentColor;
@@ -344,6 +346,13 @@ async function handleBulkEvents(body: any, userId: string) {
           currentColor: result.newColor,
         };
 
+        // If payload contains a color (from Color Rating), use it instead of calculated color
+        // This allows teachers to manually set colors independently of XP thresholds
+        if (eventPayload.color) {
+          updateData.currentColor = eventPayload.color;
+          eventPayload.manualColorOverride = true;
+        }
+
         studentUpdates[student.id] = { ...studentUpdates[student.id], ...updateData };
 
         eventPayload.previousXP = currentXP;
@@ -351,7 +360,7 @@ async function handleBulkEvents(body: any, userId: string) {
         eventPayload.previousLevel = currentLevel;
         eventPayload.newLevel = result.newLevel;
         eventPayload.previousColor = currentColor;
-        eventPayload.newColor = result.newColor;
+        eventPayload.newColor = updateData.currentColor;
       }
 
       const event = await tx.behaviorEvent.create({

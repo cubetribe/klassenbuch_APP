@@ -7,10 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **XP Doubling Bug (Issue #3)**: Fixed critical bug where Color Rating mass actions caused duplicate XP gains
+  - **Root Cause**: Frontend sent two separate API calls that both updated XP:
+    1. Direct student update via `PATCH /api/students/{id}` (updated XP + auto-created event)
+    2. Bulk event creation via `POST /api/events` (updated XP again based on payload)
+  - **Solution**: Implemented Event-Only approach (Event-Sourcing best practice)
+    - Frontend now only sends events via `POST /api/events` (Single Source of Truth)
+    - Removed redundant direct student updates from Color Rating component
+    - Backend handles all XP calculations and student updates
+  - **Files Changed**:
+    - `components/behavior/color-rating.tsx`: Removed lines 65-78 (direct updates)
+    - `app/api/events/route.ts`: Enhanced to handle manual color overrides from Color Rating
+  - **Impact**: XP points are now correctly calculated once (e.g., +5 XP stays +5 XP, not +10 XP)
+  - **Testing**: Tested with multiple students and all 4 color ratings (Blue, Green, Yellow, Red)
+  - **Documentation**: Full analysis documented in `.agents/XP_DOUBLING_BUG_ANALYSIS.md`
+
+### Changed
+- **API URL Configuration**: Updated production API base URL to `https://klassenbuch.goaiex.com`
+  - Fixed CORS errors caused by requests to non-existent `klassenbuch-app-3xol.vercel.app`
+  - Updated Vercel environment variables: `NEXTAUTH_URL` and `NEXT_PUBLIC_API_URL`
+  - Removed hardcoded fallback URL in `next.config.js`
+
 ### Known Issues
-- **XP Doubling Bug**: Color Rating mass actions cause duplicate XP gains (client + server both update)
-- **Dashboard 400 Error**: Events API returns 400 Bad Request on initial load
-- **Rollback Performed**: Fix attempt in branch `fix-bulk-xp-calculation` caused additional issues and was reverted to commit `a583f1e`
+- **Dashboard 400 Error**: Events API may return 400 Bad Request on initial load (rare, not reproduced in testing)
 
 ---
 
