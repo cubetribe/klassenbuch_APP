@@ -61,36 +61,19 @@ export function ColorRating() {
     }
 
     try {
-      // Update each selected student
-      const updatePromises = selectedStudents.map(studentId => {
-        const student = students.find(s => s.id === studentId);
-        if (!student) return Promise.resolve();
-
-        // Update student color and XP - convert to uppercase for API
-        const newXP = Math.max(0, (student.currentXP || 0) + rating.xpChange);
-        
-        return updateStudent(studentId, {
-          currentColor: rating.color.toUpperCase() as 'BLUE' | 'GREEN' | 'YELLOW' | 'RED',
-          currentXP: newXP
-        });
-      });
-
-      await Promise.all(updatePromises);
-
-      // Create behavior events for tracking - convert color to uppercase
+      // Create behavior events for tracking. The backend will handle the XP/color updates.
       const events = selectedStudents.map(studentId => ({
         studentId,
         courseId: currentCourse.id,
-        type: 'COLOR_CHANGE',
+        type: 'XP_CHANGE', // Use XP_CHANGE to trigger the correct backend logic
         payload: { 
-          color: rating.color.toUpperCase(),
           label: rating.label,
           xpChange: rating.xpChange
         },
         notes: `Bewertung: ${rating.label}`
       }));
 
-      await createBulkEvents(events as any);
+      await createBulkEvents(events);
 
       toast.success(
         `${selectedStudents.length} Schüler als "${rating.label}" bewertet`

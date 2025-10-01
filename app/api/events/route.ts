@@ -17,10 +17,12 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
+    const typeParam = searchParams.get('type');
+
     const filters = eventFilterSchema.parse({
       studentId: searchParams.get('studentId'),
       courseId: searchParams.get('courseId'),
-      type: searchParams.get('type'),
+      type: typeParam === '' ? null : typeParam, // Handle empty string for type filter
       startDate: searchParams.get('startDate'),
       endDate: searchParams.get('endDate'),
       limit: searchParams.get('limit'),
@@ -331,7 +333,8 @@ async function handleBulkEvents(body: any, userId: string) {
       const eventPayload = { ...(eventData.payload || {}) };
       let updateData: any = {};
 
-      if (eventData.type === 'XP_CHANGE' && typeof eventPayload.xpChange === 'number') {
+      // Generic check for xpChange in payload for any event type
+      if (typeof eventPayload.xpChange === 'number' && eventPayload.xpChange !== 0) {
         const currentXP = studentUpdates[student.id]?.currentXP ?? student.currentXP;
         const currentColor = studentUpdates[student.id]?.currentColor ?? student.currentColor;
         const currentLevel = studentUpdates[student.id]?.currentLevel ?? student.currentLevel;
