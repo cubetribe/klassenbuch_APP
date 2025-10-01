@@ -28,6 +28,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `.trim()` to environment variables to remove newlines (caused by Vercel CLI)
   - Extracted shared verification logic into `verifyEmailLogic()` function
 - **SSE Route Build Error**: Added `export const dynamic = 'force-dynamic'` to prevent static generation of Server-Sent Events endpoint
+- **XP Doubling Bug (Issue #3)**: Fixed bulk XP calculation causing duplicate XP gains
+  - XP changes are now calculated cumulatively within a single transaction
+  - Prevents multiple XP increases for the same student in bulk operations
+  - Fixed by tracking pending updates in-memory before writing to database
+- **Events API 500 Error**: Fixed Prisma validation error on `/api/events` endpoint
+  - **Root Cause**: `limit` and `offset` parameters were nullable, causing `take: null` to be passed to Prisma
+  - **Error**: `Argument 'take' must not be null` - Prisma requires undefined or Integer
+  - **Solution**: Removed `.optional().nullable()` from eventFilterSchema, keeping only `.default()` values
+  - **Impact**: All users experiencing dashboard errors on login are now fixed
 
 ### Technical Details
 - **Database Schema**: Added email verification fields to User model
