@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function verifyEmailLogic(token: string) {
-
+  try {
     // Find user with this verification token
     const user = await prisma.user.findUnique({
       where: { verificationToken: token },
@@ -80,4 +80,8 @@ async function verifyEmailLogic(token: string) {
       },
       { status: 200 }
     );
+  } catch (error) {
+    console.error('Email verification error:', error);
+    throw error;
+  }
 }
