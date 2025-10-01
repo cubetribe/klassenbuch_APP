@@ -36,6 +36,6 @@ export const eventFilterSchema = z.object({
   type: eventTypeSchema.optional().nullable(),
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
-  limit: z.coerce.number().int().positive().max(100).optional().nullable().default(20),
-  offset: z.coerce.number().int().min(0).optional().nullable().default(0),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0),
 });
