@@ -92,8 +92,11 @@ class APIClient {
 
     verifyEmail: async (token: string) => {
       return this.request<{ success: boolean; message: string }>(
-        `/api/auth/verify-email?token=${token}`,
-        { method: 'POST' }
+        '/api/auth/verify-email',
+        {
+          method: 'POST',
+          body: JSON.stringify({ token })
+        }
       );
     },
 
