@@ -1,6 +1,6 @@
 # 📚 Klassenbuch App - Digitale Verhaltenssteuerung für Schulen
 
-![Version](https://img.shields.io/badge/version-0.9.2-green)
+![Version](https://img.shields.io/badge/version-0.9.4-green)
 ![Next.js](https://img.shields.io/badge/Next.js-13.5.1-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue)
 ![License](https://img.shields.io/badge/license-Proprietary-red)
@@ -18,7 +18,7 @@ Eine moderne, DSGVO-konforme WebApp zur digitalen Verhaltenssteuerung im Klassen
 
 ## 🎯 Features
 
-### ✅ Vollständig Implementiert (v0.9.2)
+### ✅ Vollständig Implementiert (v0.9.4)
 - **🔐 Authentifizierung**: Sicheres Login-System mit Session-Management
 - **📚 Kursverwaltung**: Vollständige CRUD-Operationen für Kurse
 - **👥 Schülerverwaltung**: Anonyme Schülerprofile (nur Vornamen)
@@ -31,12 +31,14 @@ Eine moderne, DSGVO-konforme WebApp zur digitalen Verhaltenssteuerung im Klassen
 - **🌓 Dark Mode**: Augenschonender Nachtmodus
 - **📱 Responsive**: Mobile-first Design
 
-### 🎨 Neue Features in v0.9.2
+### 🎨 Neue Features in v0.9.4
+- **📧 Email Authentication**: Vollständiges Email-Verifizierungs-System
+- **🔐 Password Reset**: Passwort zurücksetzen via Email
+- **✉️ Custom Domain Email**: Professionelle Emails von mail@goaiex.com
+- **🔒 Email-Verification Required**: Sicherer Registrierungsprozess
 - **🎨 Farbbewertungssystem**: Blau/Grün/Gelb/Rot mit XP-Integration
 - **📊 Dashboard mit echten Daten**: KPIs und Activities aus der Datenbank
 - **🌓 Verbesserter Dark/Light Mode**: Optimierte Kontraste und Lesbarkeit
-- **🔧 Session Management Fix**: Stabile Authentication in Production
-- **✨ UI/UX Polish**: Konsistente Navigation und Feedback
 
 ### 🚧 Geplante Features (v1.0)
 - **📄 PDF-Export**: Berichte als PDF
