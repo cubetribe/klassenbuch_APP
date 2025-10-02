@@ -8,6 +8,8 @@
 
 Eine moderne, DSGVO-konforme WebApp zur digitalen Verhaltenssteuerung im Klassenzimmer mit Gamification-Elementen. Entwickelt für deutsche Schulen mit Fokus auf Datenschutz und pädagogische Wirksamkeit.
 
+## 📦 Backup vom 2. Oktober 2025 - Vor Refactoring
+
 ## ⚠️ Bekannte Probleme (Stand: 01. Oktober 2025)
 
 **Kritische Bugs in Production**:
